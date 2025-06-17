@@ -1,0 +1,37 @@
+# Doxygen MCP Server Dependencies
+
+# Core MCP framework
+mcp>=1.0.0
+
+# Data validation and configuration
+pydantic>=2.0.0
+
+# Path handling utilities
+pathlib2>=2.3.0
+
+# XML processing for Doxygen output analysis
+lxml>=4.9.0
+
+# Development dependencies
+pytest>=7.0.0
+pytest-asyncio>=0.20.0
+black>=22.0.0
+mypy>=1.0.0
+
+# Optional dependencies for enhanced functionality
+# Uncomment as needed:
+
+# For advanced text processing
+# regex>=2022.0.0
+
+# For configuration file parsing
+# configparser>=5.0.0
+
+# For enhanced logging
+# coloredlogs>=15.0.0
+
+# For file watching capabilities
+# watchdog>=2.1.0
+
+# For JSON schema validation
+# jsonschema>=4.0.0

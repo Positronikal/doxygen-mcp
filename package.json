@@ -1,0 +1,55 @@
+{
+  "name": "doxygen-mcp",
+  "version": "1.0.0",
+  "description": "A comprehensive Model Context Protocol server for Doxygen documentation generation",
+  "author": "Hoyt",
+  "license": "MIT",
+  "keywords": ["doxygen", "documentation", "mcp", "api-docs", "code-documentation"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/doxygen-mcp.git"
+  },
+  "main": "server.py",
+  "scripts": {
+    "start": "python server.py",
+    "dev": "python server.py",
+    "test": "python -m pytest tests/",
+    "install-deps": "pip install -r requirements.txt"
+  },
+  "mcp": {
+    "server": {
+      "name": "doxygen-mcp",
+      "version": "1.0.0",
+      "description": "Comprehensive Doxygen documentation generation and management server",
+      "capabilities": [
+        "project_management",
+        "documentation_generation", 
+        "configuration_management",
+        "validation_analysis",
+        "multi_language_support",
+        "diagram_generation"
+      ],
+      "supported_languages": [
+        "C", "C++", "Python", "PHP", "Java", "C#", "JavaScript", 
+        "Objective-C", "Fortran", "VHDL", "Batch", "PowerShell", 
+        "Bash", "Perl", "Go"
+      ],
+      "output_formats": [
+        "HTML", "LaTeX", "PDF", "XML", "RTF", "Man pages", "DocBook"
+      ]
+    }
+  },
+  "python": {
+    "requires": ">=3.8",
+    "dependencies": [
+      "mcp>=1.0.0",
+      "pydantic>=2.0.0",
+      "pathlib2>=2.3.0"
+    ]
+  },
+  "system_requirements": {
+    "doxygen": ">=1.9.0",
+    "graphviz": ">=2.40.0 (optional, for diagram generation)",
+    "latex": "optional, for PDF generation"
+  }
+}
