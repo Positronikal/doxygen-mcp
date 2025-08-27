@@ -1,132 +1,199 @@
-# Set default behavior, in case users don't have core.autocrlf set.
+# GIT ATTRIBUTES
+#
+# These settings are for any project.
+#
+# Details per file setting:
+#   text:   These files should be normalized (i.e. convert CRLF to LF).
+#           unless otherwise specified.
+#   binary: These files are binary and should be left untouched.
+#
+# * Note that binary is a macro for -text -diff.
+# ---------------------------------------------------------------------
+
+# AUTO-DETECT
+#   Handle line endings automatically for files detected as
+#   text and leave all files detected as binary untouched.
+#   This will handle all files NOT defined below.
 * text=auto
 
-# Explicitly declare text files you want to always be normalized and converted
-# to native line endings on checkout.
-*.c text
-*.h text
-*.cpp text
-*.hpp text
-*.py text
-*.sh text
-*.md text
-*.json text
-*.xml text
-*.html text
-*.css text
-*.js text
-*.yml text
-*.yaml text
+# SOURCE CODE
+*.bat           text eol=crlf
+*.class         binary
+*.coffee        text
+*.css           text
+*.htm           text
+*.html          text
+*.inc           text
+*.ini           text eol=crlf
+*.java          text
+*.js            text
+*.json          text
+*.jsx           text
+*.less          text
+*.od            text
+*.onlydata      text
+*.php           text
+*.pl            text
+*.properties    text
+*.py            text
+*.rb            text
+*.sass          text
+*.scm           text
+*.scss          text
+*.sh            text eol=lf
+*.sql           text
+*.styl          text
+*.tag           text
+*.ts            text
+*.tsx           text
+*.txt           text eol=crlf
+*.xml           text
+*.xhtml         text
 
-# Declare files that will always have LF line endings on checkout.
-*.sh eol=lf
+# DOCKER
+*.dockerignore  text
+Dockerfile      text
 
-# Denote all files that are truly binary and should not be modified.
-*.png binary
-*.jpg binary
-*.jpeg binary
-*.gif binary
-*.svg binary
-*.ico binary
-*.pdf binary
-*.zip binary
-*.gz binary
-*.tar binary
-*.so binary
-*.a binary
-*.dll binary
-*.exe binary
-*.o binary
-*.obj binary
-*.pyc binary
-*.pyo binary
-*.pyd binary
-*.egg binary
-*.whl binary
-*.jar binary
-*.class binary
-*.war binary
-*.ear binary
-*.swp binary
-*.swo binary
-*.swn binary
-*.bak binary
-*.tmp binary
-*.log binary
-*.db binary
-*.sqlite binary
-*.sqlite3 binary
-*.dat binary
-*.bin binary
-*.img binary
-*.iso binary
-*.vmdk binary
-*.vdi binary
-*.vhd binary
-*.vhdx binary
-*.ova binary
-*.ovf binary
-*.raw binary
-*.dmg binary
-*.sparseimage binary
-*.sparsebundle binary
-*.pkg binary
-*.mpkg binary
-*.app binary
-*.ipa binary
-*.apk binary
-*.xapk binary
-*.obb binary
-*.deb binary
-*.rpm binary
-*.snap binary
-*.flatpak binary
-*.appimage binary
-*.msi binary
-*.msu binary
-*.msp binary
-*.cab binary
-*.sys binary
-*.cat binary
-*.inf binary
-*.cer binary
-*.pfx binary
-*.p12 binary
-*.p7b binary
-*.p7c binary
-*.p7m binary
-*.p7s binary
-*.der binary
-*.crt binary
-*.pem binary
-*.key binary
-*.csr binary
-*.crl binary
-*.pub binary
-*.gpg binary
-*.asc binary
-*.sig binary
-*.pgp binary
-*.enc binary
-*.crypt binary
-*.gpg-zip binary
-*.7z binary
-*.rar binary
-*.bz2 binary
-*.lz binary
-*.lzma binary
-*.lzo binary
-*.xz binary
-*.z binary
-*.Z binary
-*.ace binary
-*.arj binary
-*.cab binary
-*.lha binary
-*.lzh binary
-*.zoo binary
-*.mp3 binary
-*.mp4 binary
-*.m4a binary
-*.m4v binary
-... (33 more lines)
+# DOCUMENTATION
+*.markdown      text
+*.md            text
+*.mdwn          text
+*.mdown         text
+*.mkd           text
+*.mkdn          text
+*.mdtxt         text
+*.mdtext        text
+*.txt           text
+AUTHORS         text
+CHANGELOG       text
+CHANGES         text
+CONTRIBUTING    text
+COPYING         text
+copyright       text
+*COPYRIGHT*     text
+INSTALL         text
+license         text
+LICENSE         text
+NEWS            text
+readme          text
+*README*        text
+TODO            text
+
+# TEMPLATES
+*.dot           text
+*.ejs           text
+*.haml          text
+*.handlebars    text
+*.hbs           text
+*.hbt           text
+*.jade          text
+*.latte         text
+*.mustache      text
+*.njk           text
+*.phtml         text
+*.tmpl          text
+*.tpl           text
+*.twig          text
+
+# LINTERS
+.babelrc        text
+.csslintrc      text
+.eslintrc       text
+.htmlhintrc     text
+.jscsrc         text
+.jshintrc       text
+.jshintignore   text
+.prettierrc     text
+.stylelintrc    text
+
+# CONFIGS
+*.bowerrc       text
+*.cnf           text
+*.conf          text
+*.config        text
+.browserslistrc text
+.editorconfig   text
+.gitattributes  text
+.gitconfig      text
+.gitignore      text
+.htaccess       text
+*.npmignore     text
+*.yaml          text
+*.yml           text
+browserslist    text
+Makefile        text
+makefile        text
+
+# HEROKU
+Procfile    text
+.slugignore text
+
+# GRAPHICS
+*.ai    binary
+*.bmp   binary
+*.eps   binary
+*.gif   binary
+*.ico   binary
+*.jng   binary
+*.jp2   binary
+*.jpg   binary
+*.jpeg  binary
+*.jpx   binary
+*.jxr   binary
+*.pdf   binary
+*.png   binary
+*.psb   binary
+*.psd   binary
+*.svg   text
+*.svgz  binary
+*.tif   binary
+*.tiff  binary
+*.wbmp  binary
+*.webp  binary
+
+# AUDIO
+*.kar   binary
+*.m4a   binary
+*.mid   binary
+*.midi  binary
+*.mp3   binary
+*.ogg   binary
+*.ra    binary
+
+# VIDEO
+*.3gpp  binary
+*.3gp   binary
+*.as    binary
+*.asf   binary
+*.asx   binary
+*.fla   binary
+*.flv   binary
+*.m4v   binary
+*.mng   binary
+*.mov   binary
+*.mp4   binary
+*.mpeg  binary
+*.mpg   binary
+*.ogv   binary
+*.swc   binary
+*.swf   binary
+*.webm  binary
+
+# ARCHIVES
+*.7z    binary
+*.gz    binary
+*.jar   binary
+*.rar   binary
+*.tar   binary
+*.zip   binary
+
+# FONTS
+*.ttf   binary
+*.eot   binary
+*.otf   binary
+*.woff  binary
+*.woff2 binary
+
+# EXECUTABLES
+*.exe   binary
+*.pyc   binary
