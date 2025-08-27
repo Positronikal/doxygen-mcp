@@ -1,0 +1,38 @@
+[project]
+name = "doxygen-mcp-server"
+version = "1.0.0"
+description = "A comprehensive Model Context Protocol (MCP) server that provides full access to Doxygen's documentation generation capabilities."
+readme = "README.md"
+requires-python = ">=3.8"
+license = { file = "LICENSE.md" }
+authors = [
+    { name = "Positronikal", email = "hoyt.harness@gmail.com" }
+]
+dependencies = [
+    "mcp>=1.0.0",
+    "pydantic>=2.0.0",
+    "pathlib2>=2.3.0",
+    "lxml>=4.9.0"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.20.0",
+    "black>=22.0.0",
+    "mypy>=1.0.0"
+]
+full = [
+    "regex>=2022.0.0",
+    "configparser>=5.0.0",
+    "coloredlogs>=15.0.0",
+    "watchdog>=2.1.0",
+    "jsonschema>=4.0.0"
+]
+
+[project.scripts]
+doxygen-mcp-server = "server:main"
+
+[tool.uvenv]
+backend = "uv"
+main = "server:main"

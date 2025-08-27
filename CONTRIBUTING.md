@@ -19,25 +19,13 @@ automatically rejected by Github. Pull requests that are not
 signed using GPG that authenticates the developer's identity are likely
 to be rejected.
 
-## CODING STANDARDS AND STYLE:
-This is not GNU software, however coding style follows GNU Coding
-Standards published by Richard M. Stallman, Free Software Foundation,
-dated May 18, 2025 or later. GNU Coding Standards can be obtained
-from: <https://www.gnu.org/prep/standards/>
+## Coding Standards
+This project follows the [GNU Coding Standards](https://www.gnu.org/prep/standards/). We encourage you to read them to understand the project's philosophy and style.
 
-## LEGAL STANDING:
-For any person who makes a non-trivial contribution to the project,
-including comments and documentation files, a legal release document is
-required. This document must be signed by all interested parties,
-GPG-protected, and submitted before a pull request can be accepted.
-Although this software is covered by the GNU General Public License, it
-is not GNU software and copyright has not been assigned to FSF. This
-means the legal defense burden is on Positronikal to both defend the
-terms of the license and to exercise the right to distribute the
-software. Being a small developer group, our means to fight lengthy
-court battles are limited. Every effort is made, therefore, to prevent
-such an occurrence at all. Send an email to hoyt.harness@gmail.com to
-request a disclaimer form.
+## Licensing
+This project is licensed under the GNU General Public License (GPLv3), but it is not a GNU project and its copyright is not assigned to the Free Software Foundation (FSF). This means that while the project is free and open-source, the legal responsibility for defending the license rests with the project's maintainers.
+
+For any non-trivial contribution, we require a signed contributor license agreement (CLA). This is a standard practice in many open-source projects and helps protect both you and the project. To get a copy of the CLA, please email [hoyt.harness@gmail.com](mailto:hoyt.harness@gmail.com).
 
 ## READ ALSO:
 <https://positronikal.github.io/>

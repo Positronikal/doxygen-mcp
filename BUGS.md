@@ -1,54 +1,10 @@
-# Support
-- **Issues**: Report bugs and feature requests via GitHub Issues
-- **Examples**: Sample projects in `examples/` directory
+# Bugs
+The process for submitting bug reports. Note that security issues are addressed in the SECURITY file.
 
-## Troubleshooting
-
-### Common Issues
-**Doxygen Not Found**
-```bash
-# Verify Doxygen installation
-doxygen --version
-
-# Add to PATH if needed (Windows)
-set PATH=%PATH%;C:\Program Files\doxygen\bin
-```
-
-**Graphviz Diagrams Not Working**
-```bash
-# Test Graphviz installation
-dot -V
-
-# Install missing components
-sudo apt-get install graphviz-dev  # Linux
-brew install graphviz              # macOS
-```
-
-**LaTeX PDF Generation Fails**
-```bash
-# Test LaTeX installation
-pdflatex --version
-
-# Install missing packages
-sudo apt-get install texlive-latex-extra texlive-fonts-recommended
-```
-
-**Permission Errors**
-- Ensure write permissions to output directories
-- Run with appropriate user privileges
-- Check file system permissions
-
-### Debug Mode
-Enable detailed logging:
-
-```bash
-# Set log level to DEBUG
-export PYTHONPATH=.
-python -c "
-import logging
-logging.basicConfig(level=logging.DEBUG)
-from server import main
-import asyncio
-asyncio.run(main())
-"
-```
+To report a bug, please open an issue on the GitHub repository. Please include the following information in your bug report:
+- A clear and descriptive title.
+- A detailed description of the bug, including the steps to reproduce it.
+- The expected behavior and the actual behavior.
+- The version of the software you are using.
+- Your operating system and any other relevant environment details.
+- Any error messages or logs that you have.

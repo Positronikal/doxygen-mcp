@@ -134,6 +134,15 @@ def test_manual_doxygen_run():
     
     project_root = Path(__file__).parent
     example_path = project_root / "examples" / "cpp_sample"
+
+    # Sanitize the project path
+    safe_example_path = Path(os.path.abspath(os.path.realpath(example_path)))
+    if not safe_example_path.is_dir():
+        print(f"❌ Invalid example project path: {example_path}")
+        return False
+    if not str(safe_example_path).startswith(os.getcwd()):
+        print(f"❌ Example project path is not within the current working directory: {example_path}")
+        return False
     
     # Create a simple Doxyfile for testing
     doxyfile_content = f"""

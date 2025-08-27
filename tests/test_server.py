@@ -15,7 +15,7 @@ import sys
 import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from server import DoxygenConfig, DoxygenServer
+from server import DoxygenConfig, mcp, create_doxygen_project, generate_documentation, scan_project, check_doxygen_install
 
 
 class TestDoxygenConfig:
@@ -56,177 +56,133 @@ class TestDoxygenConfig:
         assert 'OPTIMIZE_OUTPUT_JAVA   = NO' in doxyfile_content
 
 
-class TestDoxygenServer:
-    """Test the DoxygenServer implementation"""
-    
-    def setup_method(self):
-        """Set up test environment"""
-        self.server = DoxygenServer()
-    
-    @pytest.mark.asyncio
-    async def test_list_tools(self):
-        """Test tool listing functionality"""
-        # Mock the server's list_tools handler
-        tools = await self.server.server._tool_handlers["list_tools"]()
-        
-        assert len(tools) > 0
-        
-        # Check for key tools
-        tool_names = [tool.name for tool in tools]
-        assert "create_doxygen_project" in tool_names
-        assert "generate_documentation" in tool_names
-        assert "scan_project" in tool_names
-        assert "check_doxygen_install" in tool_names
-    
-    @pytest.mark.asyncio
-    async def test_create_project_success(self):
-        """Test successful project creation"""
-        with tempfile.TemporaryDirectory() as temp_dir:
-            args = {
-                "project_name": "Test Project",
-                "project_path": temp_dir,
-                "language": "cpp",
-                "include_subdirs": True,
-                "extract_private": False
-            }
-            
-            result = await self.server._create_project(args)
-            
-            assert len(result) == 1
-            assert "✅ Doxygen project 'Test Project' created successfully!" in result[0].text
-            
-            # Check if Doxyfile was created
-            doxyfile_path = Path(temp_dir) / "Doxyfile"
-            assert doxyfile_path.exists()
-            
-            # Verify content
-            with open(doxyfile_path, 'r') as f:
-                content = f.read()
-            
-            assert 'PROJECT_NAME           = "Test Project"' in content
-            assert '*.cpp *.hpp *.cc *.hh *.cxx *.hxx' in content
-    
-    @pytest.mark.asyncio
-    async def test_create_project_invalid_path(self):
-        """Test project creation with invalid path"""
-        args = {
-            "project_name": "Test Project",
-            "project_path": "/invalid/path/that/cannot/be/created",
-            "language": "cpp"
-        }
-        
-        result = await self.server._create_project(args)
-        
-        assert len(result) == 1
-        assert "❌ Failed to create project:" in result[0].text
-    
-    @pytest.mark.asyncio
-    async def test_scan_project_nonexistent(self):
-        """Test scanning a non-existent project"""
-        args = {
-            "project_path": "/nonexistent/path"
-        }
-        
-        result = await self.server._scan_project(args)
-        
-        assert len(result) == 1
-        assert "❌ Project path does not exist:" in result[0].text
-    
-    @pytest.mark.asyncio
-    async def test_scan_project_success(self):
-        """Test successful project scanning"""
-        with tempfile.TemporaryDirectory() as temp_dir:
-            # Create some test files
-            test_files = [
-                "main.cpp",
-                "header.h", 
-                "utils.py",
-                "config.json",
-                "README.md"
-            ]
-            
-            for filename in test_files:
-                file_path = Path(temp_dir) / filename
-                file_path.write_text(f"// Test content for {filename}")
-            
-            args = {
-                "project_path": temp_dir
-            }
-            
-            result = await self.server._scan_project(args)
-            
-            assert len(result) == 1
-            result_text = result[0].text
-            
-            assert "📁 Project Scan Results" in result_text
-            assert "Total Files Found: 5" in result_text
-            assert ".cpp: 1 files" in result_text
-            assert ".h: 1 files" in result_text
-            assert ".py: 1 files" in result_text
-    
-    @pytest.mark.asyncio
-    @patch('subprocess.run')
-    async def test_check_doxygen_install_success(self, mock_run):
-        """Test successful Doxygen installation check"""
-        mock_run.return_value = MagicMock(
-            returncode=0,
-            stdout="1.9.4\n"
+@pytest.mark.asyncio
+async def test_create_project_success():
+    """Test successful project creation"""
+    with tempfile.TemporaryDirectory() as temp_dir:
+        result = await create_doxygen_project(
+            project_name="Test Project",
+            project_path=temp_dir,
+            language="cpp",
+            include_subdirs=True,
+            extract_private=False
         )
         
-        result = await self.server._check_doxygen_install({})
+        assert "✅ Doxygen project 'Test Project' created successfully!" in result
         
-        assert len(result) == 1
-        assert "✅ Doxygen 1.9.4 is installed and working!" in result[0].text
-    
-    @pytest.mark.asyncio
-    @patch('subprocess.run')
-    async def test_check_doxygen_install_not_found(self, mock_run):
-        """Test Doxygen not found"""
-        mock_run.side_effect = FileNotFoundError()
+        # Check if Doxyfile was created
+        doxyfile_path = Path(temp_dir) / "Doxyfile"
+        assert doxyfile_path.exists()
         
-        result = await self.server._check_doxygen_install({})
+        # Verify content
+        with open(doxyfile_path, 'r') as f:
+            content = f.read()
         
-        assert len(result) == 1
-        assert "❌ Doxygen is not installed" in result[0].text
+        assert 'PROJECT_NAME           = "Test Project"' in content
+        assert '*.cpp *.hpp *.cc *.hh *.cxx *.hxx' in content
+
+@pytest.mark.asyncio
+async def test_create_project_invalid_path():
+    """Test project creation with invalid path"""
+    result = await create_doxygen_project(
+        project_name="Test Project",
+        project_path="/invalid/path/that/cannot/be/created",
+        language="cpp"
+    )
+
+    assert "❌ Failed to create project:" in result
+
+@pytest.mark.asyncio
+async def test_scan_project_nonexistent():
+    """Test scanning a non-existent project"""
+    result = await scan_project(
+        project_path="/nonexistent/path"
+    )
     
-    @pytest.mark.asyncio
-    async def test_generate_documentation_no_doxyfile(self):
-        """Test documentation generation without Doxyfile"""
-        with tempfile.TemporaryDirectory() as temp_dir:
-            args = {
-                "project_path": temp_dir,
-                "output_format": "html"
-            }
-            
-            result = await self.server._generate_documentation(args)
-            
-            assert len(result) == 1
-            assert "❌ No Doxyfile found" in result[0].text
+    assert "❌ Project path does not exist:" in result
+
+@pytest.mark.asyncio
+async def test_scan_project_success():
+    """Test successful project scanning"""
+    with tempfile.TemporaryDirectory() as temp_dir:
+        # Create some test files
+        test_files = [
+            "main.cpp",
+            "header.h",
+            "utils.py",
+            "config.json",
+            "README.md"
+        ]
+
+        for filename in test_files:
+            file_path = Path(temp_dir) / filename
+            file_path.write_text(f"// Test content for {filename}")
+        
+        result = await scan_project(
+            project_path=temp_dir
+        )
+        
+        assert "📁 Project Scan Results" in result
+        assert "Total Files Found: 5" in result
+        assert ".cpp: 1 files" in result
+        assert ".h: 1 files" in result
+        assert ".py: 1 files" in result
+
+@pytest.mark.asyncio
+@patch('subprocess.run')
+async def test_check_doxygen_install_success(mock_run):
+    """Test successful Doxygen installation check"""
+    mock_run.return_value = MagicMock(
+        returncode=0,
+        stdout="1.9.4\n"
+    )
+
+    result = await check_doxygen_install()
     
-    @pytest.mark.asyncio
-    @patch('subprocess.run')
-    async def test_generate_documentation_success(self, mock_run):
-        """Test successful documentation generation"""
-        with tempfile.TemporaryDirectory() as temp_dir:
-            # Create a mock Doxyfile
-            doxyfile_path = Path(temp_dir) / "Doxyfile"
-            doxyfile_path.write_text("PROJECT_NAME = Test")
-            
-            # Mock successful doxygen execution
-            mock_run.side_effect = [
-                MagicMock(returncode=0, stdout="1.9.4\n"),  # version check
-                MagicMock(returncode=0, stderr="")  # documentation generation
-            ]
-            
-            args = {
-                "project_path": temp_dir,
-                "output_format": "html"
-            }
-            
-            result = await self.server._generate_documentation(args)
-            
-            assert len(result) == 1
-            assert "✅ Documentation generated successfully!" in result[0].text
+    assert "✅ Doxygen 1.9.4 is installed and working!" in result
+
+@pytest.mark.asyncio
+@patch('subprocess.run')
+async def test_check_doxygen_install_not_found(mock_run):
+    """Test Doxygen not found"""
+    mock_run.side_effect = FileNotFoundError()
+
+    result = await check_doxygen_install()
+    
+    assert "❌ Doxygen is not installed" in result
+
+@pytest.mark.asyncio
+async def test_generate_documentation_no_doxyfile():
+    """Test documentation generation without Doxyfile"""
+    with tempfile.TemporaryDirectory() as temp_dir:
+        result = await generate_documentation(
+            project_path=temp_dir,
+            output_format="html"
+        )
+        
+        assert "❌ No Doxyfile found" in result
+
+@pytest.mark.asyncio
+@patch('subprocess.run')
+async def test_generate_documentation_success(mock_run):
+    """Test successful documentation generation"""
+    with tempfile.TemporaryDirectory() as temp_dir:
+        # Create a mock Doxyfile
+        doxyfile_path = Path(temp_dir) / "Doxyfile"
+        doxyfile_path.write_text("PROJECT_NAME = Test")
+        
+        # Mock successful doxygen execution
+        mock_run.side_effect = [
+            MagicMock(returncode=0, stdout="1.9.4\n"),  # version check
+            MagicMock(returncode=0, stderr="")  # documentation generation
+        ]
+        
+        result = await generate_documentation(
+            project_path=temp_dir,
+            output_format="html"
+        )
+        
+        assert "✅ Documentation generated successfully!" in result
 
 
 class TestLanguageDetection:

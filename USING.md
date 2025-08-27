@@ -48,19 +48,33 @@ Detailed documentation located in `docs/` elsewhere in this repo.
    ```
 
 2. **Install Python dependencies**
+   We recommend using [uv](https://docs.astral.sh/uv/) to manage your Python projects.
    ```bash
-   pip install -r requirements.txt
+   # Create a virtual environment
+   uv venv
+
+   # Activate the virtual environment
+   source .venv/bin/activate
+
+   # Install dependencies
+   uv pip install -e .[dev]
    ```
 
 3. **Verify installation**
    ```bash
-   python server.py --help
+   doxygen-mcp-server --help
    ```
 
 ## Starting the Server
 ```bash
 # Start the MCP server
-python server.py
+doxygen-mcp-server
+```
+
+## Running with uvenv
+This project is configured to be run with `uvenv` for MCP clients. To run the server with `uvenv`, you will need to have `uvenv` installed. You can then run the server using the following command:
+```bash
+uvenv doxygen-mcp-server
 ```
 
 The server communicates via stdin/stdout using the MCP protocol.
@@ -245,60 +259,3 @@ result = await client.call_tool("create_doxygen_project", {
     "language": "cpp"
 })
 ```
-
-## File Structure
-```
-doxygen-mcp/
-├── server.py              # Main MCP server implementation
-├── requirements.txt       # Python dependencies
-├── package.json           # Project metadata and configuration
-├── README.md              # This documentation
-├── docs/                  # Doxygen documentation (downloaded)
-│   └── Doxygen/           # Official Doxygen manual
-├── examples/              # Example projects and configurations
-├── tests/                 # Unit tests
-└── templates/             # Doxyfile templates
-    ├── minimal.doxyfile
-    ├── standard.doxyfile
-    └── comprehensive.doxyfile
-```
-
-## Development
-
-### Running Tests
-```bash
-# Install development dependencies
-pip install -r requirements.txt
-
-# Run tests
-python -m pytest tests/
-
-# Run with coverage
-python -m pytest tests/ --cov=server
-```
-
-### Code Formatting
-```bash
-# Format code
-black server.py
-
-# Type checking
-mypy server.py
-```
-
-### Performance Optimization
-For large projects:
-- Use `EXTRACT_ALL = NO` to reduce processing time
-- Enable `OPTIMIZE_OUTPUT_FOR_C` for C projects
-- Set `MAX_DOT_GRAPH_DEPTH` to limit diagram complexity
-- Use `EXCLUDE_PATTERNS` to skip unnecessary files
-
-### Adding New Features
-1. **Extend DoxygenConfig**: Add new configuration options
-2. **Implement Tool Handler**: Add the tool method to DoxygenServer
-3. **Update Tool List**: Add tool definition to handle_list_tools
-4. **Add Tests**: Create comprehensive test cases
-5. **Update Documentation**: Document the new functionality
-
-## Troubleshooting
-See `BUGS` elsewhere in this repo.
