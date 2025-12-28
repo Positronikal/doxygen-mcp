@@ -74,16 +74,6 @@ uv.lock
 .DS_Store
 Thumbs.db
 
-# Doxygen generated files
-docs/
-html/
-latex/
-xml/
-rtf/
-man/
-docbook/
-*.tmp
-
 # Example project outputs
 examples/*/docs/
 examples/*/html/
