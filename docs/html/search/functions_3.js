@@ -1,25 +1,5 @@
 var searchData=
 [
-  ['test_5fc_5flanguage_5fconfig_0',['test_c_language_config',['../classtest__server_1_1_test_language_detection.html#a3682627ecf9e5ffbc41b5ce935ad40d1',1,'test_server::TestLanguageDetection']]],
-  ['test_5fcheck_5fdoxygen_5finstall_5fnot_5ffound_1',['test_check_doxygen_install_not_found',['../classtest__server_1_1_test_doxygen_server.html#ae67cdb3a7617f05a21b558c3a03d4a0f',1,'test_server::TestDoxygenServer']]],
-  ['test_5fcheck_5fdoxygen_5finstall_5fsuccess_2',['test_check_doxygen_install_success',['../classtest__server_1_1_test_doxygen_server.html#a761d7b62c558f833c34fa66f333de601',1,'test_server::TestDoxygenServer']]],
-  ['test_5fconfig_5fserialization_3',['test_config_serialization',['../classtest__server_1_1_test_doxygen_config.html#a81eed838b0d4f20d318645c81a016bb0',1,'test_server::TestDoxygenConfig']]],
-  ['test_5fcpp_5flanguage_5fconfig_4',['test_cpp_language_config',['../classtest__server_1_1_test_language_detection.html#acb4eec3cf5f928d6f8b64800046471a4',1,'test_server::TestLanguageDetection']]],
-  ['test_5fcreate_5fproject_5finvalid_5fpath_5',['test_create_project_invalid_path',['../classtest__server_1_1_test_doxygen_server.html#afe86a0a412f983f219ae30d2ffb8bf72',1,'test_server::TestDoxygenServer']]],
-  ['test_5fcreate_5fproject_5fsuccess_6',['test_create_project_success',['../classtest__server_1_1_test_doxygen_server.html#a05edb87cb04f2821aeb065904fda5880',1,'test_server::TestDoxygenServer']]],
-  ['test_5fdefault_5fconfig_7',['test_default_config',['../classtest__server_1_1_test_doxygen_config.html#a17efb95a92bef978a5a68f18ea838c3d',1,'test_server::TestDoxygenConfig']]],
-  ['test_5fdoxygen_5finstallation_8',['test_doxygen_installation',['../namespacetest__basic__functionality.html#a20f8a4315fe99eabed6d5d3d7767bd7b',1,'test_basic_functionality']]],
-  ['test_5fexample_5fproject_9',['test_example_project',['../namespacetest__basic__functionality.html#abd1c318c6260da6559fcd7dad0d45746',1,'test_basic_functionality']]],
-  ['test_5fgenerate_5fdocumentation_5fno_5fdoxyfile_10',['test_generate_documentation_no_doxyfile',['../classtest__server_1_1_test_doxygen_server.html#a1c5c98f031c68458d2fcc0db810bd799',1,'test_server::TestDoxygenServer']]],
-  ['test_5fgenerate_5fdocumentation_5fsuccess_11',['test_generate_documentation_success',['../classtest__server_1_1_test_doxygen_server.html#a31e6ed4f0999fd014e18ebbabf0d0e4c',1,'test_server::TestDoxygenServer']]],
-  ['test_5fgraphviz_5finstallation_12',['test_graphviz_installation',['../namespacetest__basic__functionality.html#ac27421aecb54a318750ed93550b55c24',1,'test_basic_functionality']]],
-  ['test_5flanguage_5foptimization_13',['test_language_optimization',['../classtest__server_1_1_test_doxygen_config.html#a6f228128f22fa2921e613ec758237bb6',1,'test_server::TestDoxygenConfig']]],
-  ['test_5flist_5ftools_14',['test_list_tools',['../classtest__server_1_1_test_doxygen_server.html#a2e307f4133da645b63758061e34f6bc9',1,'test_server::TestDoxygenServer']]],
-  ['test_5fmanual_5fdoxygen_5frun_15',['test_manual_doxygen_run',['../namespacetest__basic__functionality.html#ae19a04373a188145ab136d75923a00e6',1,'test_basic_functionality']]],
-  ['test_5fproject_5fstructure_16',['test_project_structure',['../namespacetest__basic__functionality.html#aece4f4551ecfcb0e83bce5885c489cf8',1,'test_basic_functionality']]],
-  ['test_5fpython_5fdependencies_17',['test_python_dependencies',['../namespacetest__basic__functionality.html#a08648199817f169e9a5817fa17b008bb',1,'test_basic_functionality']]],
-  ['test_5fpython_5flanguage_5fconfig_18',['test_python_language_config',['../classtest__server_1_1_test_language_detection.html#abace9d7a862f8327520afb19e71b3e18',1,'test_server::TestLanguageDetection']]],
-  ['test_5fscan_5fproject_5fnonexistent_19',['test_scan_project_nonexistent',['../classtest__server_1_1_test_doxygen_server.html#a808226e1712cca654123760d99b382c9',1,'test_server::TestDoxygenServer']]],
-  ['test_5fscan_5fproject_5fsuccess_20',['test_scan_project_success',['../classtest__server_1_1_test_doxygen_server.html#a9210a20453b42a0f8ab5778281c0ad5f',1,'test_server::TestDoxygenServer']]],
-  ['to_5fdoxyfile_21',['to_doxyfile',['../classserver_1_1_doxygen_config.html#aa1e007ebbaf6e98c3083c028a9161b4a',1,'server::DoxygenConfig']]]
+  ['scan_5fproject_0',['scan_project',['../namespacedoxygen__mcp_1_1server.html#a35b2b9865417c2e4e5578eabf722985b',1,'doxygen_mcp::server']]],
+  ['suggest_5ffile_5fpatterns_1',['suggest_file_patterns',['../namespacedoxygen__mcp_1_1server.html#a4d3dbe0428ffe2d0bf544b4bf4307029',1,'doxygen_mcp::server']]]
 ];

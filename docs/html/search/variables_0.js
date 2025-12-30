@@ -1,7 +1,7 @@
 var searchData=
 [
-  ['call_5fgraph_0',['call_graph',['../classserver_1_1_doxygen_config.html#aefc05ca05bb89b151fcea30ba999a74b',1,'server::DoxygenConfig']]],
-  ['caller_5fgraph_1',['caller_graph',['../classserver_1_1_doxygen_config.html#a8615cca8cb5005d216e0d94a6f09d5eb',1,'server::DoxygenConfig']]],
-  ['class_5fgraph_2',['class_graph',['../classserver_1_1_doxygen_config.html#a5476c2ca016212341147acaaf19ade9a',1,'server::DoxygenConfig']]],
-  ['collaboration_5fgraph_3',['collaboration_graph',['../classserver_1_1_doxygen_config.html#abc349c70cb3cba76e5f171b9d708073a',1,'server::DoxygenConfig']]]
+  ['call_5fgraph_0',['call_graph',['../classdoxygen__mcp_1_1server_1_1_doxygen_config.html#accc9e46388323950355530da1f925918',1,'doxygen_mcp::server::DoxygenConfig']]],
+  ['caller_5fgraph_1',['caller_graph',['../classdoxygen__mcp_1_1server_1_1_doxygen_config.html#a61e37e13cab5999d6b4491b0245e16d2',1,'doxygen_mcp::server::DoxygenConfig']]],
+  ['class_5fgraph_2',['class_graph',['../classdoxygen__mcp_1_1server_1_1_doxygen_config.html#a3027c0ba11d602bb11d14a6114140532',1,'doxygen_mcp::server::DoxygenConfig']]],
+  ['collaboration_5fgraph_3',['collaboration_graph',['../classdoxygen__mcp_1_1server_1_1_doxygen_config.html#a36f43d51b62c187bdad5270761dce2b7',1,'doxygen_mcp::server::DoxygenConfig']]]
 ];

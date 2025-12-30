@@ -1,15 +1,15 @@
 var namespaces_dup =
 [
-    [ "server", "namespaceserver.html", "namespaceserver" ],
-    [ "test_basic_functionality", "namespacetest__basic__functionality.html", [
-      [ "main", "namespacetest__basic__functionality.html#a50cdfa8ab5cbf4e550c5c092fad44d5e", null ],
-      [ "test_doxygen_installation", "namespacetest__basic__functionality.html#a20f8a4315fe99eabed6d5d3d7767bd7b", null ],
-      [ "test_example_project", "namespacetest__basic__functionality.html#abd1c318c6260da6559fcd7dad0d45746", null ],
-      [ "test_graphviz_installation", "namespacetest__basic__functionality.html#ac27421aecb54a318750ed93550b55c24", null ],
-      [ "test_manual_doxygen_run", "namespacetest__basic__functionality.html#ae19a04373a188145ab136d75923a00e6", null ],
-      [ "test_project_structure", "namespacetest__basic__functionality.html#aece4f4551ecfcb0e83bce5885c489cf8", null ],
-      [ "test_python_dependencies", "namespacetest__basic__functionality.html#a08648199817f169e9a5817fa17b008bb", null ],
-      [ "success", "namespacetest__basic__functionality.html#a9bcbc497cbe4567522f3978ee883b931", null ]
+    [ "check_environment", "namespacecheck__environment.html", [
+      [ "main", "namespacecheck__environment.html#acde24c03a86fc07f5c42a79f8cbbb807", null ],
+      [ "test_doxygen_installation", "namespacecheck__environment.html#ab36e7b2910870ae6f8b6471a90595585", null ],
+      [ "test_example_project", "namespacecheck__environment.html#af83c556517c1340ab887d91a4ec61f1e", null ],
+      [ "test_graphviz_installation", "namespacecheck__environment.html#a38153d4a3166fa84da983a3485ae3d16", null ],
+      [ "test_manual_doxygen_run", "namespacecheck__environment.html#a2884ec803f0ae3196222cd551030d1b8", null ],
+      [ "test_project_structure", "namespacecheck__environment.html#aef7627795db2d2c5f0ac5e1370dc6e2b", null ],
+      [ "test_python_dependencies", "namespacecheck__environment.html#a10a4ad1b3554c1a22dada0e46436de6a", null ],
+      [ "success", "namespacecheck__environment.html#afbb086679ce2981fc902a70347ce14b5", null ]
     ] ],
+    [ "doxygen_mcp", "namespacedoxygen__mcp.html", "namespacedoxygen__mcp" ],
     [ "test_server", "namespacetest__server.html", "namespacetest__server" ]
 ];

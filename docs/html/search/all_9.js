@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['main_0',['main',['../namespaceserver.html#aa29596aedd8d3d43ac3689e0905aaa29',1,'server.main()'],['../namespacetest__basic__functionality.html#a50cdfa8ab5cbf4e550c5c092fad44d5e',1,'test_basic_functionality.main()']]]
+  ['main_0',['main',['../namespacecheck__environment.html#acde24c03a86fc07f5c42a79f8cbbb807',1,'check_environment.main()'],['../namespacedoxygen__mcp_1_1server.html#a7200d238798fee09e5bf9611e578483b',1,'doxygen_mcp.server.main()']]],
+  ['mcp_1',['mcp',['../namespacedoxygen__mcp_1_1server.html#a1ba7fd448d6058b759c529cf472320aa',1,'doxygen_mcp::server']]]
 ];

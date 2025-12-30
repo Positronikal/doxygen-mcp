@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['have_5fdot_0',['have_dot',['../classserver_1_1_doxygen_config.html#af1a7f1e7f21307c4bfa8210ad2f508b0',1,'server::DoxygenConfig']]]
+  ['have_5fdot_0',['have_dot',['../classdoxygen__mcp_1_1server_1_1_doxygen_config.html#aa21414a85efe7924af0c713fc7465895',1,'doxygen_mcp::server::DoxygenConfig']]]
 ];

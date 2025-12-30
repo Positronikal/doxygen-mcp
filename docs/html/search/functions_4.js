@@ -1,0 +1,24 @@
+var searchData=
+[
+  ['test_5fc_5flanguage_5fconfig_0',['test_c_language_config',['../classtest__server_1_1_test_language_detection.html#a3682627ecf9e5ffbc41b5ce935ad40d1',1,'test_server::TestLanguageDetection']]],
+  ['test_5fcheck_5fdoxygen_5finstall_5fnot_5ffound_1',['test_check_doxygen_install_not_found',['../namespacetest__server.html#abeabc724637e97e413119e3e3e230a67',1,'test_server']]],
+  ['test_5fcheck_5fdoxygen_5finstall_5fsuccess_2',['test_check_doxygen_install_success',['../namespacetest__server.html#a9e9a80f905d6af21d92627e03fc5ee1f',1,'test_server']]],
+  ['test_5fconfig_5fserialization_3',['test_config_serialization',['../classtest__server_1_1_test_doxygen_config.html#a81eed838b0d4f20d318645c81a016bb0',1,'test_server::TestDoxygenConfig']]],
+  ['test_5fcpp_5flanguage_5fconfig_4',['test_cpp_language_config',['../classtest__server_1_1_test_language_detection.html#acb4eec3cf5f928d6f8b64800046471a4',1,'test_server::TestLanguageDetection']]],
+  ['test_5fcreate_5fproject_5finvalid_5fpath_5',['test_create_project_invalid_path',['../namespacetest__server.html#a7684a6cdf95814c60a7c2de120558ccc',1,'test_server']]],
+  ['test_5fcreate_5fproject_5fsuccess_6',['test_create_project_success',['../namespacetest__server.html#a0b4c2993855888e1fae3bb3278f98f67',1,'test_server']]],
+  ['test_5fdefault_5fconfig_7',['test_default_config',['../classtest__server_1_1_test_doxygen_config.html#a17efb95a92bef978a5a68f18ea838c3d',1,'test_server::TestDoxygenConfig']]],
+  ['test_5fdoxygen_5finstallation_8',['test_doxygen_installation',['../namespacecheck__environment.html#ab36e7b2910870ae6f8b6471a90595585',1,'check_environment']]],
+  ['test_5fexample_5fproject_9',['test_example_project',['../namespacecheck__environment.html#af83c556517c1340ab887d91a4ec61f1e',1,'check_environment']]],
+  ['test_5fgenerate_5fdocumentation_5fno_5fdoxyfile_10',['test_generate_documentation_no_doxyfile',['../namespacetest__server.html#a8112146bd8622c5d02a30b08074309e3',1,'test_server']]],
+  ['test_5fgenerate_5fdocumentation_5fsuccess_11',['test_generate_documentation_success',['../namespacetest__server.html#acd221a92d87bd62f6e2925a719427b71',1,'test_server']]],
+  ['test_5fgraphviz_5finstallation_12',['test_graphviz_installation',['../namespacecheck__environment.html#a38153d4a3166fa84da983a3485ae3d16',1,'check_environment']]],
+  ['test_5flanguage_5foptimization_13',['test_language_optimization',['../classtest__server_1_1_test_doxygen_config.html#a6f228128f22fa2921e613ec758237bb6',1,'test_server::TestDoxygenConfig']]],
+  ['test_5fmanual_5fdoxygen_5frun_14',['test_manual_doxygen_run',['../namespacecheck__environment.html#a2884ec803f0ae3196222cd551030d1b8',1,'check_environment']]],
+  ['test_5fproject_5fstructure_15',['test_project_structure',['../namespacecheck__environment.html#aef7627795db2d2c5f0ac5e1370dc6e2b',1,'check_environment']]],
+  ['test_5fpython_5fdependencies_16',['test_python_dependencies',['../namespacecheck__environment.html#a10a4ad1b3554c1a22dada0e46436de6a',1,'check_environment']]],
+  ['test_5fpython_5flanguage_5fconfig_17',['test_python_language_config',['../classtest__server_1_1_test_language_detection.html#abace9d7a862f8327520afb19e71b3e18',1,'test_server::TestLanguageDetection']]],
+  ['test_5fscan_5fproject_5fnonexistent_18',['test_scan_project_nonexistent',['../namespacetest__server.html#a4ca70fa7bc35df8c64c6581491e80564',1,'test_server']]],
+  ['test_5fscan_5fproject_5fsuccess_19',['test_scan_project_success',['../namespacetest__server.html#a78aba5474df5c60515df6cb597daeaf2',1,'test_server']]],
+  ['to_5fdoxyfile_20',['to_doxyfile',['../classdoxygen__mcp_1_1server_1_1_doxygen_config.html#a5ae77c0455aee3e6a2adbc3d4d6cbe66',1,'doxygen_mcp::server::DoxygenConfig']]]
+];

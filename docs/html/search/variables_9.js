@@ -1,6 +1,7 @@
 var searchData=
 [
-  ['recursive_0',['recursive',['../classserver_1_1_doxygen_config.html#a2ca2e9344f1cc2eaadea1936846749ed',1,'server::DoxygenConfig']]],
-  ['referenced_5fby_5frelation_1',['referenced_by_relation',['../classserver_1_1_doxygen_config.html#a607d98e4e33b59fe9127f89a57556acf',1,'server::DoxygenConfig']]],
-  ['references_5frelation_2',['references_relation',['../classserver_1_1_doxygen_config.html#aca1b7c24569ea71fa2694ee073820af1',1,'server::DoxygenConfig']]]
+  ['project_5fbrief_0',['project_brief',['../classdoxygen__mcp_1_1server_1_1_doxygen_config.html#a18f221d8e7f1635c50392718aca9819a',1,'doxygen_mcp::server::DoxygenConfig']]],
+  ['project_5flogo_1',['project_logo',['../classdoxygen__mcp_1_1server_1_1_doxygen_config.html#a6d5c1f27645615b0b802169b8117cc6d',1,'doxygen_mcp::server::DoxygenConfig']]],
+  ['project_5fname_2',['project_name',['../classdoxygen__mcp_1_1server_1_1_doxygen_config.html#af49e8ac6d6c7d2adbf45dc833fadcb7f',1,'doxygen_mcp::server::DoxygenConfig']]],
+  ['project_5fnumber_3',['project_number',['../classdoxygen__mcp_1_1server_1_1_doxygen_config.html#ad92a95a744ba1e8adec9a74f90ed38d4',1,'doxygen_mcp::server::DoxygenConfig']]]
 ];

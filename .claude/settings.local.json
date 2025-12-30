@@ -7,7 +7,9 @@
       "Bash(uv run python:*)",
       "Bash(timeout 2 uv run:*)",
       "Bash(ls:*)",
-      "Bash(where:*)"
+      "Bash(where:*)",
+      "mcp__doxygen__generate_documentation",
+      "mcp__doxygen__validate_documentation"
     ]
   }
 }

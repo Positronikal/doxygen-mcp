@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['setup_5fhandlers_0',['setup_handlers',['../classserver_1_1_doxygen_server.html#a4802dbdf5ebf79ac79fdb1a7cc0bc907',1,'server::DoxygenServer']]],
-  ['setup_5fmethod_1',['setup_method',['../classtest__server_1_1_test_doxygen_server.html#a0a6eca51872eb0c015be6e6a4ca4a980',1,'test_server::TestDoxygenServer']]]
+  ['main_0',['main',['../namespacecheck__environment.html#acde24c03a86fc07f5c42a79f8cbbb807',1,'check_environment.main()'],['../namespacedoxygen__mcp_1_1server.html#a7200d238798fee09e5bf9611e578483b',1,'doxygen_mcp.server.main()']]]
 ];

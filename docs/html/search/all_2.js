@@ -1,5 +1,7 @@
 var searchData=
 [
-  ['doxygenconfig_0',['DoxygenConfig',['../classserver_1_1_doxygen_config.html',1,'server']]],
-  ['doxygenserver_1',['DoxygenServer',['../classserver_1_1_doxygen_server.html',1,'server']]]
+  ['doxygen_5fmcp_0',['doxygen_mcp',['../namespacedoxygen__mcp.html',1,'']]],
+  ['doxygen_5fmcp_3a_3a_5f_5fmain_5f_5f_1',['__main__',['../namespacedoxygen__mcp_1_1____main____.html',1,'doxygen_mcp']]],
+  ['doxygen_5fmcp_3a_3aserver_2',['server',['../namespacedoxygen__mcp_1_1server.html',1,'doxygen_mcp']]],
+  ['doxygenconfig_3',['DoxygenConfig',['../classdoxygen__mcp_1_1server_1_1_doxygen_config.html',1,'doxygen_mcp::server']]]
 ];

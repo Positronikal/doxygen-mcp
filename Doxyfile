@@ -2,7 +2,7 @@
 
 # Project related configuration options
 PROJECT_NAME           = "Doxygen MCP Server"
-PROJECT_NUMBER         = ""
+PROJECT_NUMBER         = "3.0.0"
 PROJECT_BRIEF          = ""
 PROJECT_LOGO           = ""
 OUTPUT_DIRECTORY       = "D:\dev\ARTIFICIAL_INTELLIGENCE\MCP\doxygen-mcp\docs"
