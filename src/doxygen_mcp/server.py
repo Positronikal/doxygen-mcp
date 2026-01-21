@@ -2,9 +2,9 @@
 """
 Doxygen MCP Server
 
-A comprehensive Model Context Protocol server that provides full access to Doxygen's 
-documentation generation capabilities. This server exposes Doxygen's complete feature 
-set through a clean MCP interface, enabling AI assistants to generate, configure, 
+A comprehensive Model Context Protocol server that provides full access to Doxygen's
+documentation generation capabilities. This server exposes Doxygen's complete feature
+set through a clean MCP interface, enabling AI assistants to generate, configure,
 and manage documentation for any supported programming language.
 
 Supported Languages:
@@ -29,12 +29,14 @@ import subprocess
 import tempfile
 import xml.etree.ElementTree as ET
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Sequence, Union
+from typing import Optional, List, Dict, Any
 import shutil
 import re
+import mcp.types as types
 
 # MCP server imports
 from mcp.server.fastmcp import FastMCP
+from .query_engine import DoxygenQueryEngine
 from mcp.types import (
     TextContent,
 )
@@ -49,16 +51,16 @@ mcp = FastMCP("Doxygen")
 class DoxygenConfig(BaseModel):
     """
     @brief Represents a Doxygen configuration with all major options
-    
+
     This class encapsulates all the major configuration options available in Doxygen,
     providing a structured way to manage documentation generation settings. It supports
     multiple programming languages, output formats, and advanced features like diagram
     generation and source browsing.
-    
+
     @details The configuration is designed to be language-agnostic while providing
     specific optimizations for different programming languages. It can generate
     Doxyfile content that is compatible with Doxygen 1.9.0 and later.
-    
+
     @example
     @code{.py}
     config = DoxygenConfig(
@@ -70,26 +72,26 @@ class DoxygenConfig(BaseModel):
     doxyfile_content = config.to_doxyfile()
     @endcode
     """
-    
+
     # Project settings
     project_name: str = "My Project"
     project_number: str = ""
     project_brief: str = ""
     project_logo: str = ""
     output_directory: str = "./docs"
-    
+
     # Input settings
     input_paths: List[str] = ["."]
     file_patterns: List[str] = ["*.c", "*.cpp", "*.h", "*.hpp", "*.py", "*.php"]
     recursive: bool = True
     exclude_patterns: List[str] = []
-    
+
     # Language optimization
     optimize_output_for_c: bool = False
     optimize_output_java: bool = False
     optimize_for_fortran: bool = False
     optimize_output_vhdl: bool = False
-    
+
     # Output formats
     generate_html: bool = True
     generate_latex: bool = False
@@ -97,13 +99,13 @@ class DoxygenConfig(BaseModel):
     generate_man: bool = False
     generate_xml: bool = False
     generate_docbook: bool = False
-    
+
     # Documentation extraction
     extract_all: bool = True
     extract_private: bool = False
     extract_static: bool = True
     extract_local_classes: bool = True
-    
+
     # Diagram generation
     have_dot: bool = True
     class_graph: bool = True
@@ -112,24 +114,24 @@ class DoxygenConfig(BaseModel):
     caller_graph: bool = False
     include_graph: bool = True
     included_by_graph: bool = True
-    
+
     # Advanced features
     source_browser: bool = True
     inline_sources: bool = False
     strip_code_comments: bool = True
     referenced_by_relation: bool = True
     references_relation: bool = True
-    
+
     def to_doxyfile(self) -> str:
         """
         @brief Convert configuration to Doxyfile format
         @return String containing complete Doxyfile configuration
-        
+
         @details Generates a complete Doxyfile configuration string that can be
         written to disk and used with the doxygen command-line tool. The output
         includes all configured options with appropriate YES/NO values and
         proper escaping for file paths and patterns.
-        
+
         @note The generated Doxyfile is compatible with Doxygen 1.9.0+
         """
         lines = [
@@ -153,10 +155,10 @@ class DoxygenConfig(BaseModel):
             f"FILE_PATTERNS          = {' '.join(self.file_patterns)}",
             f"RECURSIVE              = {'YES' if self.recursive else 'NO'}",
         ]
-        
+
         if self.exclude_patterns:
             lines.append(f"EXCLUDE_PATTERNS       = {' '.join(self.exclude_patterns)}")
-        
+
         lines.extend([
             f"",
             f"# Language optimization",
@@ -189,7 +191,7 @@ class DoxygenConfig(BaseModel):
             f"REFERENCED_BY_RELATION = {'YES' if self.referenced_by_relation else 'NO'}",
             f"REFERENCES_RELATION    = {'YES' if self.references_relation else 'NO'}",
         ])
-        
+
         return "\n".join(lines)
 
 
@@ -210,10 +212,10 @@ async def create_doxygen_project(
                 return f"❌ Invalid project path: {project_path}"
             if not str(safe_project_path).startswith(os.getcwd()):
                 return f"❌ Project path is not within the current working directory: {project_path}"
-        
+
         # Create project directory if it doesn't exist
         safe_project_path.mkdir(parents=True, exist_ok=True)
-        
+
         # Create configuration based on language
         config = DoxygenConfig(
             project_name=project_name,
@@ -222,7 +224,7 @@ async def create_doxygen_project(
             recursive=include_subdirs,
             extract_private=extract_private
         )
-        
+
         # Language-specific optimizations
         if language == "c":
             config.optimize_output_for_c = True
@@ -241,12 +243,12 @@ async def create_doxygen_project(
             config.file_patterns = ["*.cs"]
         elif language == "javascript":
             config.file_patterns = ["*.js", "*.jsx", "*.ts", "*.tsx"]
-        
+
         # Save configuration
         doxyfile_path = Path(project_path) / "Doxyfile"
         with open(doxyfile_path, 'w', encoding='utf-8') as f:
             f.write(config.to_doxyfile())
-        
+
         result = f"""✅ Doxygen project '{project_name}' created successfully!
 
 📁 Project Path: {project_path}
@@ -290,17 +292,19 @@ async def generate_documentation(
     doxyfile_path = safe_project_path / "Doxyfile"
     if not doxyfile_path.exists():
         return "❌ No Doxyfile found. Create a project first using 'create_doxygen_project'."
-    
+
+    doxygen_exe = os.environ.get("DOXYGEN_PATH", "doxygen")
+
     try:
         # Check if doxygen is available
-        result = subprocess.run(["doxygen", "--version"], capture_output=True, text=True)
+        result = subprocess.run([doxygen_exe, "--version"], capture_output=True, text=True)
         if result.returncode != 0:
-            return "❌ Doxygen not found. Please install Doxygen first."
-        
+            return f"❌ Doxygen not found at '{doxygen_exe}'. Please install Doxygen or set DOXYGEN_PATH."
+
         doxygen_version = result.stdout.strip()
-        
+
         # Run Doxygen
-        cmd = ["doxygen", str(doxyfile_path)]
+        cmd = [doxygen_exe, str(doxyfile_path)]
         result = subprocess.run(
             cmd,
             cwd=project_path,
@@ -312,7 +316,7 @@ async def generate_documentation(
             # Parse output for statistics
             output_lines = result.stderr.split('\n')
             warnings = [line for line in output_lines if 'warning' in line.lower()]
-            
+
             result_text = f"""✅ Documentation generated successfully!
 
 🔧 Doxygen Version: {doxygen_version}
@@ -323,7 +327,7 @@ Generated Files:
 📄 HTML: {Path(project_path) / 'docs' / 'html' / 'index.html'}
 
 """
-            
+
             if warnings and verbose:
                 result_text += f"\n⚠️ Warnings:\n" + "\n".join(warnings[:10])
                 if len(warnings) > 10:
@@ -331,12 +335,12 @@ Generated Files:
 
             if not verbose and warnings:
                 result_text += f"\n💡 Use verbose=true to see detailed warnings"
-            
+
             return result_text
         else:
             error_output = result.stderr or result.stdout
             return f"❌ Documentation generation failed:\n{error_output}"
-            
+
     except Exception as e:
         return f"❌ Error generating documentation: {str(e)}"
 
@@ -406,15 +410,16 @@ async def check_doxygen_install(
     detailed: bool = False,
 ) -> str:
     """Verify Doxygen installation and capabilities"""
+    doxygen_exe = os.environ.get("DOXYGEN_PATH", "doxygen")
     try:
-        result = subprocess.run(["doxygen", "--version"], capture_output=True, text=True)
+        result = subprocess.run([doxygen_exe, "--version"], capture_output=True, text=True)
         if result.returncode == 0:
             version = result.stdout.strip()
-            return f"✅ Doxygen {version} is installed and working!"
+            return f"✅ Doxygen {version} is installed and working at '{doxygen_exe}'!"
         else:
-            return "❌ Doxygen is not working properly"
+            return f"❌ Doxygen at '{doxygen_exe}' is not working properly"
     except FileNotFoundError:
-        return "❌ Doxygen is not installed"
+        return f"❌ Doxygen is not installed or not found at '{doxygen_exe}'"
 
 @mcp.tool()
 async def suggest_file_patterns(
@@ -425,10 +430,10 @@ async def suggest_file_patterns(
 ) -> str:
     """Suggest appropriate file patterns for a project"""
     project_path = Path(project_path)
-    
+
     if not project_path.exists():
         return f"❌ Project path does not exist: {project_path}"
-    
+
     try:
         # Analyze actual files in the project
         extensions = {}
@@ -437,7 +442,7 @@ async def suggest_file_patterns(
                 ext = file_path.suffix.lower()
                 if ext:
                     extensions[ext] = extensions.get(ext, 0) + 1
-        
+
         # Language-specific pattern suggestions
         language_patterns = {
             "c": ["*.c", "*.h"],
@@ -450,10 +455,10 @@ async def suggest_file_patterns(
             "go": ["*.go"],
             "rust": ["*.rs"]
         }
-        
+
         # Build suggestions based on found files and language
         suggested_patterns = []
-        
+
         if primary_language.lower() in language_patterns:
             suggested_patterns.extend(language_patterns[primary_language.lower()])
 
@@ -496,6 +501,58 @@ async def suggest_file_patterns(
 
     except Exception as e:
         return f"❌ Error analyzing patterns: {str(e)}"
+
+@mcp.tool()
+async def query_project_reference(
+    symbol_name: str,
+    project_path: Optional[str] = None,
+) -> str:
+    """
+    Search for documentation of a specific class, function, or namespace.
+
+    Args:
+        symbol_name: The name of the symbol to look up (e.g., 'ChordProcessor')
+        project_path: Optional path to the project. If not provided, uses DOXYGEN_XML_DIR.
+    """
+    xml_dir = os.environ.get("DOXYGEN_XML_DIR")
+    if project_path:
+        xml_dir = str(Path(project_path) / "xml")
+
+    if not xml_dir:
+        return "❌ Error: DOXYGEN_XML_DIR environment variable not set and no project_path provided."
+
+    if not os.path.exists(xml_dir):
+        return f"❌ Error: XML directory not found at {xml_dir}. Run generate_documentation first."
+
+    try:
+        engine = DoxygenQueryEngine(xml_dir)
+        result = engine.query_symbol(symbol_name)
+
+        if not result:
+            return f"❓ Symbol '{symbol_name}' not found in documentation."
+
+        if "error" in result:
+            return result["error"]
+
+        output = f"🔍 Documentation for {result['kind']} {result['name']}\n"
+        output += "=" * (len(output) - 1) + "\n\n"
+
+        if result["brief"]:
+            output += f"Brief: {result['brief']}\n\n"
+
+        if result["detailed"]:
+            output += f"Detailed:\n{result['detailed']}\n\n"
+
+        if result["members"]:
+            output += "Member Functions/Variables:\n"
+            for m in result["members"]:
+                output += f"- {m['type']} {m['name']}{m['args']}\n"
+                if m["brief"]:
+                    output += f"  ({m['brief']})\n"
+
+        return output
+    except Exception as e:
+        return f"❌ Error querying symbol: {str(e)}"
 
 def main():
     """Main entry point for the Doxygen MCP server"""
