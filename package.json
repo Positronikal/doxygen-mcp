@@ -14,7 +14,9 @@
     "start": "python server.py",
     "dev": "python server.py",
     "test": "python -m pytest tests/",
-    "install-deps": "pip install -r requirements.txt"
+    "install-deps": "pip install -r requirements.txt",
+    "docker:build": "docker build -t doxygen-mcp .",
+    "docker:run": "docker run -i --rm -v \"$PWD:/app/workdir\" doxygen-mcp"
   },
   "mcp": {
     "server": {

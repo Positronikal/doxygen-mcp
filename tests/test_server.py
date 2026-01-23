@@ -13,9 +13,11 @@ from unittest.mock import patch, MagicMock
 
 import sys
 import os
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# Add src to path
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "src"))
 
-from server import DoxygenConfig, mcp, create_doxygen_project, generate_documentation, scan_project, check_doxygen_install
+from doxygen_mcp.server import mcp, create_doxygen_project, generate_documentation, scan_project, check_doxygen_install
+from doxygen_mcp.config import DoxygenConfig
 
 
 class TestDoxygenConfig:
@@ -139,7 +141,7 @@ async def test_check_doxygen_install_success(mock_run):
 
     result = await check_doxygen_install()
     
-    assert "✅ Doxygen 1.9.4 is installed and working!" in result
+    assert "✅ Doxygen 1.9.4 is installed and working" in result
 
 @pytest.mark.asyncio
 @patch('subprocess.run')

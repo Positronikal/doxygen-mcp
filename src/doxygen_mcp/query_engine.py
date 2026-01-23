@@ -8,6 +8,7 @@ class DoxygenQueryEngine:
         self.xml_dir = Path(xml_dir)
         self.index_path = self.xml_dir / "index.xml"
         self.compounds = {}
+        self.file_index = {} # Map files to symbols
         self._load_index()
 
     def _load_index(self):
@@ -41,6 +42,16 @@ class DoxygenQueryEngine:
 
         return None
 
+    def get_file_structure(self, file_path: str) -> List[Dict[str, Any]]:
+        """Identify all symbols defined in a specific file"""
+        # In Doxygen XML, files are also compounds
+        file_name = Path(file_path).name
+        for name, info in self.compounds.items():
+            if info["kind"] == "file" and (name == file_name or name.endswith(file_name)):
+                details = self._fetch_compound_details(info["refid"])
+                return details.get("members", [])
+        return []
+
     def _fetch_compound_details(self, refid: str) -> Dict[str, Any]:
         xml_file = self.xml_dir / f"{refid}.xml"
         if not xml_file.exists():
@@ -54,6 +65,7 @@ class DoxygenQueryEngine:
             details = {
                 "name": compounddef.find("compoundname").text,
                 "kind": compounddef.get("kind"),
+                "location": self._get_location(compounddef),
                 "brief": self._get_text_recursive(compounddef.find("briefdescription")),
                 "detailed": self._get_text_recursive(compounddef.find("detaileddescription")),
                 "members": []
@@ -66,12 +78,23 @@ class DoxygenQueryEngine:
                         "kind": member.get("kind"),
                         "type": self._get_text_recursive(member.find("type")),
                         "args": self._get_text_recursive(member.find("argsstring")),
+                        "location": self._get_location(member),
                         "brief": self._get_text_recursive(member.find("briefdescription")),
                     })
 
             return details
         except Exception as e:
             return {"error": f"Error parsing {xml_file}: {e}"}
+
+    def _get_location(self, element) -> Dict[str, Any]:
+        loc = element.find("location")
+        if loc is not None:
+            return {
+                "file": loc.get("file"),
+                "line": loc.get("line"),
+                "column": loc.get("column")
+            }
+        return {}
 
     def _get_text_recursive(self, element) -> str:
         if element is None:
@@ -86,3 +109,4 @@ class DoxygenQueryEngine:
         if kind_filter:
             return [name for name, info in self.compounds.items() if info["kind"] == kind_filter]
         return list(self.compounds.keys())
+

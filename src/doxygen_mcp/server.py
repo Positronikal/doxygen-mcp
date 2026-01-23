@@ -1,46 +1,20 @@
 #!/usr/bin/env python3
 """
-Doxygen MCP Server
-
-A comprehensive Model Context Protocol server that provides full access to Doxygen's
-documentation generation capabilities. This server exposes Doxygen's complete feature
-set through a clean MCP interface, enabling AI assistants to generate, configure,
-and manage documentation for any supported programming language.
-
-Supported Languages:
-- Primary: C, C++, Python, PHP
-- Extended: Java, C#, JavaScript, Objective-C, Fortran, VHDL
-- Additional: Batch, PowerShell, Bash, Perl, Go (through extension mapping)
-
-Key Features:
-- Project initialization and configuration management
-- Multi-format output generation (HTML, PDF, LaTeX, XML, etc.)
-- Advanced diagram generation (UML, call graphs, inheritance diagrams)
-- Documentation coverage analysis and validation
-- Cross-referencing and link generation
-- Custom theme and layout support
+Doxygen MCP Server - Context Aware Version
 """
 
-import asyncio
-import json
 import logging
 import os
 import subprocess
-import tempfile
-import xml.etree.ElementTree as ET
+import json
 from pathlib import Path
-from typing import Optional, List, Dict, Any
-import shutil
-import re
-import mcp.types as types
+from typing import Optional, Dict, Any, List
 
 # MCP server imports
 from mcp.server.fastmcp import FastMCP
 from .query_engine import DoxygenQueryEngine
-from mcp.types import (
-    TextContent,
-)
-from pydantic import BaseModel
+from .config import DoxygenConfig
+from .utils import resolve_project_path, detect_primary_language, get_ide_environment, update_ignore_file
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -48,170 +22,66 @@ logger = logging.getLogger("doxygen-mcp")
 
 mcp = FastMCP("Doxygen")
 
-class DoxygenConfig(BaseModel):
+@mcp.tool()
+async def get_context_info() -> Dict[str, Any]:
     """
-    @brief Represents a Doxygen configuration with all major options
+    Get information about the current project context, detected language, and IDE environment.
+    """
+    project_path = resolve_project_path()
+    language = detect_primary_language(project_path)
+    ide_info = get_ide_environment()
 
-    This class encapsulates all the major configuration options available in Doxygen,
-    providing a structured way to manage documentation generation settings. It supports
-    multiple programming languages, output formats, and advanced features like diagram
-    generation and source browsing.
+    has_doxyfile = (project_path / "Doxyfile").exists()
 
-    @details The configuration is designed to be language-agnostic while providing
-    specific optimizations for different programming languages. It can generate
-    Doxyfile content that is compatible with Doxygen 1.9.0 and later.
+    return {
+        "project_root": str(project_path),
+        "detected_language": language,
+        "ide_environment": ide_info,
+        "doxygen_status": {
+            "has_doxyfile": has_doxyfile,
+            "config_path": str(project_path / "Doxyfile") if has_doxyfile else None
+        }
+    }
 
-    @example
-    @code{.py}
-    config = DoxygenConfig(
-        project_name="My API Documentation",
-        output_directory="./docs",
-        file_patterns=["*.cpp", "*.h"],
-        extract_private=False
+@mcp.tool()
+async def auto_configure(project_name: Optional[str] = None) -> str:
+    """
+    Automatically detect project settings and create a Doxyfile if one doesn't exist.
+    """
+    project_path = resolve_project_path()
+    if not project_name:
+        project_name = project_path.name
+
+    language = detect_primary_language(project_path)
+
+    if (project_path / "Doxyfile").exists():
+        return f"✨ Project already configured at {project_path}. Detected language: {language}."
+
+    result = await create_doxygen_project(
+        project_name=project_name,
+        project_path=str(project_path),
+        language=language
     )
-    doxyfile_content = config.to_doxyfile()
-    @endcode
-    """
 
-    # Project settings
-    project_name: str = "My Project"
-    project_number: str = ""
-    project_brief: str = ""
-    project_logo: str = ""
-    output_directory: str = "./docs"
-
-    # Input settings
-    input_paths: List[str] = ["."]
-    file_patterns: List[str] = ["*.c", "*.cpp", "*.h", "*.hpp", "*.py", "*.php"]
-    recursive: bool = True
-    exclude_patterns: List[str] = []
-
-    # Language optimization
-    optimize_output_for_c: bool = False
-    optimize_output_java: bool = False
-    optimize_for_fortran: bool = False
-    optimize_output_vhdl: bool = False
-
-    # Output formats
-    generate_html: bool = True
-    generate_latex: bool = False
-    generate_rtf: bool = False
-    generate_man: bool = False
-    generate_xml: bool = False
-    generate_docbook: bool = False
-
-    # Documentation extraction
-    extract_all: bool = True
-    extract_private: bool = False
-    extract_static: bool = True
-    extract_local_classes: bool = True
-
-    # Diagram generation
-    have_dot: bool = True
-    class_graph: bool = True
-    collaboration_graph: bool = True
-    call_graph: bool = False
-    caller_graph: bool = False
-    include_graph: bool = True
-    included_by_graph: bool = True
-
-    # Advanced features
-    source_browser: bool = True
-    inline_sources: bool = False
-    strip_code_comments: bool = True
-    referenced_by_relation: bool = True
-    references_relation: bool = True
-
-    def to_doxyfile(self) -> str:
-        """
-        @brief Convert configuration to Doxyfile format
-        @return String containing complete Doxyfile configuration
-
-        @details Generates a complete Doxyfile configuration string that can be
-        written to disk and used with the doxygen command-line tool. The output
-        includes all configured options with appropriate YES/NO values and
-        proper escaping for file paths and patterns.
-
-        @note The generated Doxyfile is compatible with Doxygen 1.9.0+
-        """
-        lines = [
-            f"# Doxyfile generated by Doxygen MCP Server",
-            f"",
-            f"# Project related configuration options",
-            f"PROJECT_NAME           = \"{self.project_name}\"",
-            f"PROJECT_NUMBER         = \"{self.project_number}\"",
-            f"PROJECT_BRIEF          = \"{self.project_brief}\"",
-            f"PROJECT_LOGO           = \"{self.project_logo}\"",
-            f"OUTPUT_DIRECTORY       = \"{self.output_directory}\"",
-            f"",
-            f"# Build related configuration options",
-            f"EXTRACT_ALL            = {'YES' if self.extract_all else 'NO'}",
-            f"EXTRACT_PRIVATE        = {'YES' if self.extract_private else 'NO'}",
-            f"EXTRACT_STATIC         = {'YES' if self.extract_static else 'NO'}",
-            f"EXTRACT_LOCAL_CLASSES  = {'YES' if self.extract_local_classes else 'NO'}",
-            f"",
-            f"# Input related configuration options",
-            f"INPUT                  = {' '.join(self.input_paths)}",
-            f"FILE_PATTERNS          = {' '.join(self.file_patterns)}",
-            f"RECURSIVE              = {'YES' if self.recursive else 'NO'}",
-        ]
-
-        if self.exclude_patterns:
-            lines.append(f"EXCLUDE_PATTERNS       = {' '.join(self.exclude_patterns)}")
-
-        lines.extend([
-            f"",
-            f"# Language optimization",
-            f"OPTIMIZE_OUTPUT_FOR_C  = {'YES' if self.optimize_output_for_c else 'NO'}",
-            f"OPTIMIZE_OUTPUT_JAVA   = {'YES' if self.optimize_output_java else 'NO'}",
-            f"OPTIMIZE_FOR_FORTRAN   = {'YES' if self.optimize_for_fortran else 'NO'}",
-            f"OPTIMIZE_OUTPUT_VHDL   = {'YES' if self.optimize_output_vhdl else 'NO'}",
-            f"",
-            f"# Output format configuration",
-            f"GENERATE_HTML          = {'YES' if self.generate_html else 'NO'}",
-            f"GENERATE_LATEX         = {'YES' if self.generate_latex else 'NO'}",
-            f"GENERATE_RTF           = {'YES' if self.generate_rtf else 'NO'}",
-            f"GENERATE_MAN           = {'YES' if self.generate_man else 'NO'}",
-            f"GENERATE_XML           = {'YES' if self.generate_xml else 'NO'}",
-            f"GENERATE_DOCBOOK       = {'YES' if self.generate_docbook else 'NO'}",
-            f"",
-            f"# Diagram generation",
-            f"HAVE_DOT               = {'YES' if self.have_dot else 'NO'}",
-            f"CLASS_GRAPH            = {'YES' if self.class_graph else 'NO'}",
-            f"COLLABORATION_GRAPH    = {'YES' if self.collaboration_graph else 'NO'}",
-            f"CALL_GRAPH             = {'YES' if self.call_graph else 'NO'}",
-            f"CALLER_GRAPH           = {'YES' if self.caller_graph else 'NO'}",
-            f"INCLUDE_GRAPH          = {'YES' if self.include_graph else 'NO'}",
-            f"INCLUDED_BY_GRAPH      = {'YES' if self.included_by_graph else 'NO'}",
-            f"",
-            f"# Source browsing",
-            f"SOURCE_BROWSER         = {'YES' if self.source_browser else 'NO'}",
-            f"INLINE_SOURCES         = {'YES' if self.inline_sources else 'NO'}",
-            f"STRIP_CODE_COMMENTS    = {'YES' if self.strip_code_comments else 'NO'}",
-            f"REFERENCED_BY_RELATION = {'YES' if self.referenced_by_relation else 'NO'}",
-            f"REFERENCES_RELATION    = {'YES' if self.references_relation else 'NO'}",
-        ])
-
-        return "\n".join(lines)
-
+    return f"🚀 Auto-configured project!\n\n{result}"
 
 @mcp.tool()
 async def create_doxygen_project(
     project_name: str,
-    project_path: str,
-    language: str = "mixed",
+    project_path: Optional[str] = None,
+    language: Optional[str] = None,
     include_subdirs: bool = True,
     extract_private: bool = False,
 ) -> str:
     """Initialize a new Doxygen documentation project with configuration"""
     try:
-        # Sanitize the project path
-        safe_project_path = Path(os.path.abspath(os.path.realpath(project_path)))
-        if "PYTEST_CURRENT_TEST" not in os.environ:
-            if not safe_project_path.is_dir():
-                return f"❌ Invalid project path: {project_path}"
-            if not str(safe_project_path).startswith(os.getcwd()):
-                return f"❌ Project path is not within the current working directory: {project_path}"
+        # Resolve project path and detect language if not provided
+        safe_project_path = resolve_project_path(project_path)
+        if language is None:
+            language = detect_primary_language(safe_project_path)
+
+        if safe_project_path.exists() and not safe_project_path.is_dir():
+            return f"❌ Path exists but is not a directory: {safe_project_path}"
 
         # Create project directory if it doesn't exist
         safe_project_path.mkdir(parents=True, exist_ok=True)
@@ -219,288 +89,104 @@ async def create_doxygen_project(
         # Create configuration based on language
         config = DoxygenConfig(
             project_name=project_name,
-            output_directory=str(Path(project_path) / "docs"),
-            input_paths=[str(project_path)],
+            output_directory=str(safe_project_path / "docs"),
+            input_paths=[str(safe_project_path)],
             recursive=include_subdirs,
             extract_private=extract_private
         )
 
         # Language-specific optimizations
-        if language == "c":
-            config.optimize_output_for_c = True
-            config.file_patterns = ["*.c", "*.h"]
-        elif language == "cpp":
-            config.file_patterns = ["*.cpp", "*.hpp", "*.cc", "*.hh", "*.cxx", "*.hxx"]
-        elif language == "python":
-            config.optimize_output_java = True  # Python uses Java-style optimization
-            config.file_patterns = ["*.py"]
-        elif language == "php":
-            config.file_patterns = ["*.php", "*.php3", "*.inc"]
-        elif language == "java":
-            config.optimize_output_java = True
-            config.file_patterns = ["*.java"]
-        elif language == "csharp":
-            config.file_patterns = ["*.cs"]
-        elif language == "javascript":
-            config.file_patterns = ["*.js", "*.jsx", "*.ts", "*.tsx"]
+        lang_settings = {
+            "c": {"optimize_output_for_c": True, "file_patterns": ["*.c", "*.h"]},
+            "cpp": {"file_patterns": ["*.cpp", "*.hpp", "*.cc", "*.hh", "*.cxx", "*.hxx"]},
+            "python": {"optimize_output_java": True, "file_patterns": ["*.py"]},
+            "php": {"file_patterns": ["*.php", "*.php3", "*.inc"]},
+            "java": {"optimize_output_java": True, "file_patterns": ["*.java"]},
+            "csharp": {"file_patterns": ["*.cs"]},
+            "javascript": {"file_patterns": ["*.js", "*.jsx", "*.ts", "*.tsx"]},
+        }
+
+        if language in lang_settings:
+            for key, value in lang_settings[language].items():
+                setattr(config, key, value)
 
         # Save configuration
-        doxyfile_path = Path(project_path) / "Doxyfile"
+        doxyfile_path = safe_project_path / "Doxyfile"
         with open(doxyfile_path, 'w', encoding='utf-8') as f:
             f.write(config.to_doxyfile())
 
-        result = f"""✅ Doxygen project '{project_name}' created successfully!
+        # Update .gitignore.md
+        update_ignore_file(safe_project_path, "docs/")
 
-📁 Project Path: {project_path}
-🔧 Language: {language}
-📄 Configuration: {doxyfile_path}
-
-Configuration Summary:
-- Output Directory: {config.output_directory}
-- Recursive Scanning: {'Yes' if include_subdirs else 'No'}
-- Extract Private Members: {'Yes' if extract_private else 'No'}
-- File Patterns: {', '.join(config.file_patterns)}
-
-Next Steps:
-1. Review and customize the Doxyfile if needed
-2. Add documentation comments to your source code
-3. Run 'generate_documentation' to create docs
-
-The project is ready for documentation generation!"""
-
-        return result
+        return f"✅ Doxygen project '{project_name}' created successfully at {safe_project_path} (Language: {language})"
 
     except Exception as e:
         return f"❌ Failed to create project: {str(e)}"
 
 @mcp.tool()
 async def generate_documentation(
-    project_path: str,
+    project_path: Optional[str] = None,
     output_format: str = "html",
-    clean_output: bool = True,
     verbose: bool = False,
 ) -> str:
     """Generate documentation from source code using Doxygen"""
-    # Sanitize the project path
-    safe_project_path = Path(os.path.abspath(os.path.realpath(project_path)))
-    if "PYTEST_CURRENT_TEST" not in os.environ:
-        if not safe_project_path.is_dir():
-            return f"❌ Invalid project path: {project_path}"
-        if not str(safe_project_path).startswith(os.getcwd()):
-            return f"❌ Project path is not within the current working directory: {project_path}"
+    try:
+        safe_project_path = resolve_project_path(project_path)
+    except ValueError as e:
+        return f"❌ {str(e)}"
 
     doxyfile_path = safe_project_path / "Doxyfile"
     if not doxyfile_path.exists():
-        return "❌ No Doxyfile found. Create a project first using 'create_doxygen_project'."
+        return "❌ No Doxyfile found. Run 'auto_configure' or 'create_doxygen_project' first."
 
     doxygen_exe = os.environ.get("DOXYGEN_PATH", "doxygen")
 
     try:
-        # Check if doxygen is available
-        result = subprocess.run([doxygen_exe, "--version"], capture_output=True, text=True)
-        if result.returncode != 0:
-            return f"❌ Doxygen not found at '{doxygen_exe}'. Please install Doxygen or set DOXYGEN_PATH."
-
-        doxygen_version = result.stdout.strip()
-
         # Run Doxygen
-        cmd = [doxygen_exe, str(doxyfile_path)]
         result = subprocess.run(
-            cmd,
-            cwd=project_path,
+            [doxygen_exe, str(doxyfile_path)],
+            cwd=str(safe_project_path),
             capture_output=True,
             text=True
         )
 
         if result.returncode == 0:
-            # Parse output for statistics
-            output_lines = result.stderr.split('\n')
-            warnings = [line for line in output_lines if 'warning' in line.lower()]
-
-            result_text = f"""✅ Documentation generated successfully!
-
-🔧 Doxygen Version: {doxygen_version}
-📁 Project: {project_path}
-📊 Warnings: {len(warnings)}
-
-Generated Files:
-📄 HTML: {Path(project_path) / 'docs' / 'html' / 'index.html'}
-
-"""
-
-            if warnings and verbose:
-                result_text += f"\n⚠️ Warnings:\n" + "\n".join(warnings[:10])
-                if len(warnings) > 10:
-                    result_text += f"\n... and {len(warnings) - 10} more warnings"
-
-            if not verbose and warnings:
-                result_text += f"\n💡 Use verbose=true to see detailed warnings"
-
-            return result_text
+            return f"✅ Documentation generated successfully at {safe_project_path / 'docs' / 'html' / 'index.html'}"
         else:
-            error_output = result.stderr or result.stdout
-            return f"❌ Documentation generation failed:\n{error_output}"
+            return f"❌ Documentation generation failed:\n{result.stderr or result.stdout}"
 
     except Exception as e:
         return f"❌ Error generating documentation: {str(e)}"
 
 @mcp.tool()
 async def scan_project(
-    project_path: str,
+    project_path: Optional[str] = None,
 ) -> str:
     """Analyze project structure and identify documentation opportunities"""
-    project_path = Path(project_path)
-
-    if not project_path.exists():
-        return f"❌ Project path does not exist: {project_path}"
-
     try:
-        # Count files by extension
-        extensions = {}
-        total_files = 0
+        safe_project_path = resolve_project_path(project_path)
+    except ValueError as e:
+        return f"❌ {str(e)}"
 
-        for file_path in project_path.rglob("*"):
-            if file_path.is_file():
-                ext = file_path.suffix.lower()
-                if ext:
-                    extensions[ext] = extensions.get(ext, 0) + 1
-                    total_files += 1
+    if not safe_project_path.exists():
+        return f"❌ Project path does not exist: {safe_project_path}"
 
-        # Sort by frequency
-        sorted_extensions = sorted(extensions.items(), key=lambda x: x[1], reverse=True)
+    extensions = {}
+    total_files = 0
 
-        result_text = f"""📁 Project Scan Results for: {project_path}
-📊 Total Files Found: {total_files}
+    for file_path in safe_project_path.rglob("*"):
+        if file_path.is_file() and not any(part.startswith('.') for part in file_path.parts):
+            ext = file_path.suffix.lower()
+            if ext:
+                extensions[ext] = extensions.get(ext, 0) + 1
+                total_files += 1
 
-📋 Files by Type:
-"""
+    sorted_extensions = sorted(extensions.items(), key=lambda x: x[1], reverse=True)
+    result_text = f"📁 Project Scan Results: {safe_project_path}\n📊 Total Files: {total_files}\n\n📋 Files by Type:\n"
+    for ext, count in sorted_extensions[:10]:
+        result_text += f"  📄 {ext}: {count} files\n"
 
-        for ext, count in sorted_extensions[:15]:  # Show top 15 extensions
-            result_text += f"  📄 {ext}: {count} files\n"
-
-        return result_text
-
-    except Exception as e:
-        return f"❌ Error scanning project: {str(e)}"
-
-@mcp.tool()
-async def validate_documentation(
-    project_path: str,
-    check_coverage: bool = True,
-    warn_undocumented: bool = True,
-    output_format: str = "text",
-) -> str:
-    """Check for documentation warnings, missing docs, and coverage analysis"""
-    return "🚧 Documentation validation coming soon!"
-
-@mcp.tool()
-async def create_doxyfile(
-    output_path: str,
-    template: str = "standard",
-    project_settings: dict = {},
-    language_optimizations: list = [],
-) -> str:
-    """Generate a Doxyfile configuration with specified settings"""
-    return "🚧 Create Doxyfile functionality coming soon!"
-
-@mcp.tool()
-async def check_doxygen_install(
-    check_dot: bool = True,
-    check_latex: bool = True,
-    detailed: bool = False,
-) -> str:
-    """Verify Doxygen installation and capabilities"""
-    doxygen_exe = os.environ.get("DOXYGEN_PATH", "doxygen")
-    try:
-        result = subprocess.run([doxygen_exe, "--version"], capture_output=True, text=True)
-        if result.returncode == 0:
-            version = result.stdout.strip()
-            return f"✅ Doxygen {version} is installed and working at '{doxygen_exe}'!"
-        else:
-            return f"❌ Doxygen at '{doxygen_exe}' is not working properly"
-    except FileNotFoundError:
-        return f"❌ Doxygen is not installed or not found at '{doxygen_exe}'"
-
-@mcp.tool()
-async def suggest_file_patterns(
-    project_path: str,
-    primary_language: str = "",
-    include_tests: bool = False,
-    include_examples: bool = True,
-) -> str:
-    """Suggest appropriate file patterns for a project"""
-    project_path = Path(project_path)
-
-    if not project_path.exists():
-        return f"❌ Project path does not exist: {project_path}"
-
-    try:
-        # Analyze actual files in the project
-        extensions = {}
-        for file_path in project_path.rglob("*"):
-            if file_path.is_file():
-                ext = file_path.suffix.lower()
-                if ext:
-                    extensions[ext] = extensions.get(ext, 0) + 1
-
-        # Language-specific pattern suggestions
-        language_patterns = {
-            "c": ["*.c", "*.h"],
-            "cpp": ["*.cpp", "*.cxx", "*.cc", "*.C", "*.hpp", "*.hxx", "*.hh", "*.H"],
-            "python": ["*.py", "*.pyx", "*.pyi"],
-            "java": ["*.java"],
-            "php": ["*.php", "*.php3", "*.inc"],
-            "javascript": ["*.js", "*.jsx", "*.ts", "*.tsx"],
-            "csharp": ["*.cs"],
-            "go": ["*.go"],
-            "rust": ["*.rs"]
-        }
-
-        # Build suggestions based on found files and language
-        suggested_patterns = []
-
-        if primary_language.lower() in language_patterns:
-            suggested_patterns.extend(language_patterns[primary_language.lower()])
-
-        # Add patterns based on actual files found
-        common_source_extensions = {
-            ".c", ".cpp", ".cxx", ".cc", ".h", ".hpp", ".hxx", ".hh",
-            ".py", ".java", ".php", ".js", ".jsx", ".ts", ".tsx",
-            ".cs", ".go", ".rs", ".rb", ".pl", ".sh"
-        }
-
-        for ext in extensions:
-            if ext in common_source_extensions:
-                pattern = f"*{ext}"
-                if pattern not in suggested_patterns:
-                    suggested_patterns.append(pattern)
-
-        # Optional patterns
-        optional_patterns = []
-        if include_examples and any(ext in [".md", ".txt", ".rst"] for ext in extensions):
-            optional_patterns.extend(["*.md", "*.txt", ".rst"])
-
-        if include_tests:
-            optional_patterns.extend(["test_*.py", "*_test.cpp", "Test*.java"])
-
-        result_text = f"""📋 File Pattern Suggestions for: {project_path}
-
-🎯 Recommended Patterns:
-{chr(10).join(f"  📄 {pattern}" for pattern in suggested_patterns)}
-
-📊 Found Extensions:
-{chr(10).join(f"  {ext}: {count} files" for ext, count in sorted(extensions.items(), key=lambda x: x[1], reverse=True)[:10])}
-"""
-
-        if optional_patterns:
-            result_text += f"\n🔧 Optional Patterns:\n{chr(10).join(f'  📄 {pattern}' for pattern in optional_patterns)}"
-
-        result_text += f"\n\n💡 Add these patterns to your Doxyfile:\nFILE_PATTERNS = {' '.join(suggested_patterns)}"
-
-        return result_text
-
-    except Exception as e:
-        return f"❌ Error analyzing patterns: {str(e)}"
+    return result_text
 
 @mcp.tool()
 async def query_project_reference(
@@ -508,54 +194,179 @@ async def query_project_reference(
     project_path: Optional[str] = None,
 ) -> str:
     """
-    Search for documentation of a specific class, function, or namespace.
-
-    Args:
-        symbol_name: The name of the symbol to look up (e.g., 'ChordProcessor')
-        project_path: Optional path to the project. If not provided, uses DOXYGEN_XML_DIR.
+    Search for documentation of a specific class, function, or namespace using XML output.
     """
-    xml_dir = os.environ.get("DOXYGEN_XML_DIR")
-    if project_path:
-        xml_dir = str(Path(project_path) / "xml")
-
-    if not xml_dir:
-        return "❌ Error: DOXYGEN_XML_DIR environment variable not set and no project_path provided."
-
-    if not os.path.exists(xml_dir):
-        return f"❌ Error: XML directory not found at {xml_dir}. Run generate_documentation first."
-
     try:
+        resolved_path = resolve_project_path(project_path)
+        xml_dir = os.environ.get("DOXYGEN_XML_DIR")
+
+        if not xml_dir:
+            potential_paths = [
+                resolved_path / "docs" / "xml",
+                resolved_path / "xml",
+            ]
+            for p in potential_paths:
+                if p.exists() and (p / "index.xml").exists():
+                    xml_dir = str(p)
+                    break
+
+        if not xml_dir:
+            return "❌ Error: Could not find Doxygen XML directory. Ensure XML generation is enabled in Doxyfile and documentation has been generated."
+
         engine = DoxygenQueryEngine(xml_dir)
         result = engine.query_symbol(symbol_name)
 
         if not result:
-            return f"❓ Symbol '{symbol_name}' not found in documentation."
-
-        if "error" in result:
-            return result["error"]
+            return f"❓ Symbol '{symbol_name}' not found."
 
         output = f"🔍 Documentation for {result['kind']} {result['name']}\n"
-        output += "=" * (len(output) - 1) + "\n\n"
-
-        if result["brief"]:
-            output += f"Brief: {result['brief']}\n\n"
-
-        if result["detailed"]:
-            output += f"Detailed:\n{result['detailed']}\n\n"
-
-        if result["members"]:
-            output += "Member Functions/Variables:\n"
-            for m in result["members"]:
-                output += f"- {m['type']} {m['name']}{m['args']}\n"
-                if m["brief"]:
-                    output += f"  ({m['brief']})\n"
+        output += "=" * len(output) + "\n\n"
+        if result["brief"]: output += f"Brief: {result['brief']}\n\n"
+        if result["detailed"]: output += f"Detailed:\n{result['detailed']}\n\n"
 
         return output
     except Exception as e:
         return f"❌ Error querying symbol: {str(e)}"
 
+@mcp.tool()
+async def get_project_structure(project_path: Optional[str] = None) -> Dict[str, Any]:
+    """
+    Provide a tree-like overview of the project's documented components.
+    """
+    try:
+        resolved_path = resolve_project_path(project_path)
+        xml_dir = _find_xml_dir(resolved_path)
+
+        if not xml_dir:
+            return {"error": "Doxygen XML not found. Generate documentation first."}
+
+        engine = DoxygenQueryEngine(xml_dir)
+
+        structure = {
+            "project_root": str(resolved_path),
+            "classes": engine.list_all_symbols(kind_filter="class"),
+            "namespaces": engine.list_all_symbols(kind_filter="namespace"),
+            "files": engine.list_all_symbols(kind_filter="file"),
+        }
+
+        return structure
+    except Exception as e:
+        return {"error": str(e)}
+
+@mcp.tool()
+async def refresh_index(project_path: Optional[str] = None) -> str:
+    """
+    Trigger a re-scan/parse of Doxygen XML files.
+    """
+    try:
+        resolved_path = resolve_project_path(project_path)
+        xml_dir = _find_xml_dir(resolved_path)
+
+        if not xml_dir:
+            return "❌ Doxygen XML not found. Generate documentation first."
+
+        # Re-initializing the engine effectively refreshes the index
+        DoxygenQueryEngine(xml_dir)
+        return "✅ Doxygen index refreshed successfully."
+    except Exception as e:
+        return f"❌ Error refreshing index: {str(e)}"
+
+@mcp.tool()
+async def get_symbol_at_location(file_path: str, line_number: int, project_path: Optional[str] = None) -> Optional[Dict[str, Any]]:
+    """
+    Find symbol context for the IDE's cursor.
+    """
+    try:
+        resolved_path = resolve_project_path(project_path)
+        xml_dir = _find_xml_dir(resolved_path)
+
+        if not xml_dir:
+            return {"error": "Doxygen XML not found. Generate documentation first."}
+
+        engine = DoxygenQueryEngine(xml_dir)
+        file_symbols = engine.get_file_structure(file_path)
+
+        # Simple heuristic: find the symbol that contains this line
+        best_match = None
+        min_distance = float('inf')
+
+        for symbol in file_symbols:
+            loc = symbol.get("location", {})
+            if loc.get("file") and Path(loc["file"]).name == Path(file_path).name:
+                sym_line = int(loc.get("line", 0))
+                if sym_line > 0 and sym_line <= line_number:
+                    distance = line_number - sym_line
+                    if distance < min_distance:
+                        min_distance = distance
+                        best_match = symbol
+
+        return best_match
+    except Exception as e:
+        return {"error": str(e)}
+
+@mcp.tool()
+async def get_file_structure(file_path: str, project_path: Optional[str] = None) -> List[Dict[str, Any]]:
+    """
+    Retrieve all symbols defined in a specific file.
+    """
+    try:
+        resolved_path = resolve_project_path(project_path)
+        xml_dir = _find_xml_dir(resolved_path)
+
+        if not xml_dir:
+            return [{"error": "Doxygen XML not found. Generate documentation first."}]
+
+        engine = DoxygenQueryEngine(xml_dir)
+        return engine.get_file_structure(file_path)
+    except Exception as e:
+        return [{"error": str(e)}]
+
+def _find_xml_dir(resolved_path: Path) -> Optional[str]:
+    """
+    Find the Doxygen XML directory with preference for:
+    1. DOXYGEN_XML_DIR env var (absolute or relative)
+    2. Standard locations within project root
+    """
+    xml_dir_env = os.environ.get("DOXYGEN_XML_DIR")
+    if xml_dir_env:
+        path = Path(xml_dir_env)
+        if not path.is_absolute():
+            path = resolved_path / path
+
+        if path.exists() and (path / "index.xml").exists():
+            return str(path.absolute())
+
+    # Discovery in standard locations
+    potential_paths = [
+        resolved_path / "docs" / "xml",
+        resolved_path / "xml",
+        resolved_path / "doxygen" / "xml",
+    ]
+    for p in potential_paths:
+        if p.exists() and (p / "index.xml").exists():
+            return str(p.absolute())
+
+    return None
+
+
 def main():
-    """Main entry point for the Doxygen MCP server"""
+    # Check for Doxygen dependency
+    doxygen_exe = os.environ.get("DOXYGEN_PATH", "doxygen")
+    try:
+        subprocess.run([doxygen_exe, "--version"], capture_output=True, check=True)
+    except (FileNotFoundError, subprocess.CalledProcessError):
+        logger.warning(f"Doxygen not found at '{doxygen_exe}'. Attempting automatic setup...")
+        script_path = Path(__file__).parent.parent.parent / "scripts" / "check_environment.py"
+        try:
+            subprocess.run([sys.executable, str(script_path), "--install"], check=True)
+            # Re-verify after install
+            subprocess.run([doxygen_exe, "--version"], capture_output=True, check=True)
+            logger.info("Doxygen successfully installed and verified.")
+        except Exception as e:
+            logger.error(f"Automatic setup failed or Doxygen still not found: {e}")
+            logger.error("Please install Doxygen manually: https://www.doxygen.nl/download.html")
+            # We continue anyway to let MCP start, but tools will fail gracefully.
+
     mcp.run()
 
 if __name__ == "__main__":

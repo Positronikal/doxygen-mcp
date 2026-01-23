@@ -1,82 +1,64 @@
 # Doxygen MCP Server
-A comprehensive Model Context Protocol (MCP) server that provides full access to Doxygen's documentation generation capabilities. This server enables AI assistants like Claude to generate, configure, and manage documentation for any supported programming language through a clean, powerful interface.
 
-Refer to the `docs/` directory in this repository for more comprehensive documentation.
+A powerful Model Context Protocol (MCP) server that provides AI assistants with deep structural understanding and management of Doxygen-based documentation projects.
 
-## Overview
-The Doxygen MCP Server automates the generation of documentation from source code comments, parsing information about classes, functions, and variables to produce output in formats like HTML and PDF. By simplifying and standardizing the documentation process, it enhances collaboration and maintenance across diverse programming languages and project scales.
+## 🚀 Overview
 
-## Features
+The Doxygen MCP Server bridges the gap between source code and AI understanding. By leveraging Doxygen's pre-parsed structural information, it enables AI assistants to:
 
-### 🚀 Core Capabilities
-- **Project Management**: Initialize and configure Doxygen projects with intelligent defaults
-- **Multi-Language Support**: Full support for C/C++, Python, PHP, Java, C#, JavaScript, and more
-- **Documentation Generation**: Generate comprehensive documentation in multiple formats
-- **Validation & Analysis**: Check documentation coverage and identify missing documentation
-- **Diagram Generation**: Create UML diagrams, inheritance graphs, and call graphs
-- **Configuration Management**: Advanced Doxyfile creation and management
+- **Understand Code Architecture**: Navigate class hierarchies, namespaces, and file structures.
+- **Context-Aware Assistance**: Automatically locate symbol definitions based on IDE cursor position.
+- **Zero-Config Integration**: Self-configure based on the active IDE workspace and environment.
+- **Continuous Documentation**: Effortlessly keep documentation in sync with the live codebase.
 
-### 📋 Supported Languages
-**Primary Support:**
-- C, C++, Python, PHP
+## ✨ Features
 
-**Extended Support:**
-- Java, C#, JavaScript, Objective-C, Fortran, VHDL, IDL
+### 🧠 Context & IDE Awareness
 
-**Additional Support (via extension mapping):**
-- Batch, PowerShell, Bash, Perl, Go, and more
+- **IDE Detection**: Automatically identifies if it's running in **Cursor** or **VS Code**.
+- **Dynamic Project Discovery**: Resolves the project root using IDE variables like `VSCODE_WORKSPACE_FOLDER` or by searching for Markers (`.git`, `Doxyfile`).
+- **Workspace State Tracking**: Integration with IDE-supplied environment variables to track active files and cursor positions.
+- **Auto-Project Naming**: Automatically retrieves the project name from IDE variables (e.g., `VSCODE_WORKSPACE_NAME`) or the workspace folder name.
 
-### 📄 Output Formats
-- HTML (with interactive navigation)
-- LaTeX and PDF
-- XML (for further processing)
-- RTF (Rich Text Format)
-- Man pages
-- DocBook
+### 🛠️ New Context-Aware Tools
 
-## Prerequisites
+- `get_symbol_at_location`: Find the closest symbol to the IDE's cursor (file/line).
+- `get_project_structure`: Provides a tree-like overview of classes, namespaces, and files.
+- `get_file_structure`: Lists all documented symbols and their locations within a specific file.
+- `refresh_index`: Triggers an instant re-scan of Doxygen XML metadata.
+
+### ⚙️ Self-Configuration
+
+- **Zero-Config XML Discovery**: Automatically locates XML metadata in standard locations (`docs/xml`, `xml`, `doxygen/xml`).
+- **Default XML Support**: Enabled by default in all new projects to ensure rich structural queries are available instantly.
+- **Environment Overrides**: Every Doxygen setting can be overridden via `DOXYGEN_MCP_<FIELD_NAME>` environment variables.
+
+## 📋 Supported Languages
+
+- **Primary**: C, C++, Python, PHP, Java, C#, JavaScript, TypeScript.
+- **Extended**: Any language supported by Doxygen (Go, Rust, Fortran, etc.).
+
+## 🛠️ Prerequisites
 
 - **Python 3.11+**
-- **Doxygen** (required) - [Installation guide](https://www.doxygen.nl/download.html)
-- **uv** package manager - [Installation guide](https://docs.astral.sh/uv/)
-- **Graphviz** (optional, for diagrams) - [Installation guide](https://graphviz.org/download/)
-- **LaTeX** (optional, for PDF) - [Installation guide](https://www.latex-project.org/get/)
-- **Claude Desktop** or **Claude for Windows**
+- **Doxygen** (Essential for structural parsing)
+- **uv** (Recommended package manager)
+- **Graphviz** (Optional, for relationship graphs)
 
-## Quick Start
-
-### 1. Install Doxygen
+## 📦 Installation
 
 ```bash
-# Ubuntu/Debian
-sudo apt-get install doxygen
-
-# macOS
-brew install doxygen
-
-# Windows
-# Download from https://www.doxygen.nl/download.html
-```
-
-### 2. Install Dependencies
-
-```bash
-# Clone repository
-git clone <repository-url>
+# Clone the repository
+git clone https://github.com/positronikal/doxygen-mcp
 cd doxygen-mcp
 
-# Install with uv
+# Install dependencies
 uv sync
 ```
 
-### 3. Configure Claude Desktop
+## 🔧 Configuration (mcp_config.json)
 
-Edit your Claude Desktop configuration file:
-- **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
-- **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
-- **Linux**: `~/.config/Claude/claude_desktop_config.json`
-
-Add Doxygen MCP to `mcpServers`:
+Integrate into your MCP client (Claude Desktop, Cursor, etc.) using dynamic path discovery:
 
 ```json
 {
@@ -84,87 +66,33 @@ Add Doxygen MCP to `mcpServers`:
     "doxygen-mcp": {
       "command": "uv",
       "args": [
-        "--directory",
-        "/absolute/path/to/doxygen-mcp",
-        "run",
-        "doxygen-mcp"
+        "--directory", "C:\\path\\to\\doxygen-mcp",
+        "run", "doxygen-mcp"
       ],
-      "env": {}
+      "env": {
+        "DOXYGEN_MCP_PROJECT_NAME": "MyAwesomeProject",
+        "DOXYGEN_XML_DIR": "./xml"
+      }
     }
   }
 }
 ```
 
-**Windows Example**:
-```json
-{
-  "mcpServers": {
-    "doxygen-mcp": {
-      "command": "C:\\Users\\YourName\\.local\\bin\\uv.exe",
-      "args": [
-        "--directory",
-        "D:\\dev\\doxygen-mcp",
-        "run",
-        "doxygen-mcp"
-      ],
-      "env": {}
-    }
-  }
-}
-```
+> [!TIP]
+> Use relative paths like `./xml` for `DOXYGEN_XML_DIR`. The server will resolve them against your active workspace automatically.
 
-### 4. Restart Claude Desktop
+## 🛠️ Available Tools
 
-Close and reopen Claude Desktop to load the new MCP server.
+| Tool | Description |
+|------|-------------|
+| `get_context_info` | Returns information about the detected IDE and project root. |
+| `auto_configure` | Detects language and initializes a Doxygen project. |
+| `generate_documentation` | Triggers a full Doxygen build. |
+| `get_project_structure` | Provides a high-level map of classes and files. |
+| `get_symbol_at_location` | Finds the symbol context for a specific file/line. |
+| `query_project_reference` | Searches for detailed documentation of a symbol. |
+| `refresh_index` | Updates the server's internal model from disk. |
 
-### 5. Verify Installation
+## 📄 License
 
-In Claude, try:
-```
-What MCP tools do you have available?
-```
-
-You should see Doxygen MCP tools listed.
-
-### 6. Basic Usage Example
-
-```
-Create a Doxygen project for my C++ codebase at /path/to/project
-```
-
-Claude will initialize a Doxygen project with appropriate configuration.
-
-## Detailed Documentation
-
-For comprehensive documentation, see:
-- **Installation & Usage**: [USING.md](./USING.md)
-- **Troubleshooting**: [BUGS.md](./BUGS.md)
-- **Contributing**: [CONTRIBUTING.md](./CONTRIBUTING.md)
-
-## Contributing
-See [CONTRIBUTING.md](./CONTRIBUTING.md) for contribution guidelines.
-
-## License
-This project is licensed under the GNU General Public License version 3 (GPLv3). See [COPYING.md](./COPYING.md) for the full license text.
-
-## Support
-For bug reports and troubleshooting, see [BUGS.md](./BUGS.md).
-
-## Roadmap
-
-### Planned Features
-- [ ] Real-time documentation preview
-- [ ] Integration with popular IDEs
-- [ ] Custom theme support
-- [ ] Advanced search capabilities
-- [ ] Multi-repository documentation
-- [ ] CI/CD integration helpers
-- [ ] Performance analytics
-- [ ] Documentation quality scoring
-
-### Version History
-- **v1.0.0**: Initial release with full MCP support for all features of Doxygen up to and including version 1.14.0.
-
----
-
-For more information about Doxygen itself, visit [doxygen.nl](https://www.doxygen.nl/).
+This project is licensed under the GNU General Public License version 3 (GPLv3). See [COPYING.md](./COPYING.md) for details.

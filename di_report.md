@@ -1,0 +1,66 @@
+# Dependency Injection Compliance Report
+
+**Analysis Target:** `C:\GitHub\MidiKobold\xml`
+
+- **Total Classes Found:** 397
+- **Logic Classes Analyzed:** 159
+
+## 🚨 Potential DI Violations
+| Class Name | Reason | Singleton? |
+| :--- | :--- | :---: |
+| `ActiveChordProvider` | No Code Constructor / Implicit | No |
+| `ArpeggiatorSettingsProvider` | No Code Constructor / Implicit | No |
+| `BoidsSettingsProvider` | No Code Constructor / Implicit | No |
+| `BooleanPatchDataProvider` | No Code Constructor / Implicit | No |
+| `CcEnvelopeFollowerSettingsProvider` | No Code Constructor / Implicit | No |
+| `ChordProcessorSettingsProvider` | No Code Constructor / Implicit | No |
+| `CommunicationService` | No Code Constructor / Implicit | No |
+| `CvOutputSettingsProvider` | No Code Constructor / Implicit | No |
+| `DefinitionFilesSettingsProvider` | No Code Constructor / Implicit | No |
+| `DisplayManager` | No dependencies in constructor | No |
+| `EchoChamberSettingsProvider` | No Code Constructor / Implicit | No |
+| `Esp32LedController` | No dependencies in constructor | ✅ Yes |
+| `FileSync::BootRequestManager` | Singleton (getInstance found, no public injection) | ✅ Yes |
+| `FxSequencerSettingsProvider` | No Code Constructor / Implicit | No |
+| `GlobalPatchSettingsProvider` | No Code Constructor / Implicit | No |
+| `GravityWellSettingsProvider` | No Code Constructor / Implicit | No |
+| `HeavyProcessor` | No dependencies in constructor | ✅ Yes |
+| `HumanizerSettingsProvider` | No Code Constructor / Implicit | No |
+| `IDeviceDefinitionProvider` | No Code Constructor / Implicit | No |
+| `ILedController` | No Code Constructor / Implicit | No |
+| `ITransportManager` | No Code Constructor / Implicit | No |
+| `LedcService` | No Code Constructor / Implicit | No |
+| `MicrotonalSettingsProvider` | No Code Constructor / Implicit | No |
+| `MidiDelayChorusSettingsProvider` | No Code Constructor / Implicit | No |
+| `MidiLfoManagerSettingsProvider` | No Code Constructor / Implicit | No |
+| `MidiModifierSettingsProvider` | No Code Constructor / Implicit | No |
+| `MidiRoutingSettingsProvider` | No Code Constructor / Implicit | No |
+| `MockActiveChordProvider` | No Code Constructor / Implicit | No |
+| `MockArpeggiatorSettingsProvider` | No Code Constructor / Implicit | No |
+| `MockChordProcessorSettingsProvider` | No Code Constructor / Implicit | No |
+| `MockGlobalPatchSettingsProvider` | No Code Constructor / Implicit | No |
+| `MockLedController` | No Code Constructor / Implicit | No |
+| `MockMidiProcessor` | No Code Constructor / Implicit | No |
+| `MockPatchDataProvider` | No Code Constructor / Implicit | No |
+| `MockScaleManager` | No Code Constructor / Implicit | No |
+| `MockTransportManager` | No dependencies in constructor | No |
+| `ModulationSettingsProvider` | No Code Constructor / Implicit | No |
+| `MpePressureProcessor` | No dependencies in constructor | No |
+| `PatchSlotManager` | No dependencies in constructor | ✅ Yes |
+| `RhythmDiamondEngine` | No dependencies in constructor | No |
+| `ScaleManager` | No dependencies in constructor | ✅ Yes |
+| `ScaleStorageManager` | No dependencies in constructor | ✅ Yes |
+| `SequencerSettingsProvider` | No Code Constructor / Implicit | No |
+| `SmartSubstitutionEngine` | No dependencies in constructor | ✅ Yes |
+| `StubTransportManager` | No Code Constructor / Implicit | No |
+| `TapTempoSettingsProvider` | No Code Constructor / Implicit | No |
+| `TestableChordProcessor` | No dependencies in constructor | No |
+| `UsbMscService` | No Code Constructor / Implicit | No |
+| `VoiceLeadingEngine` | No dependencies in constructor | No |
+| `app::ConnectionManager` | No Code Constructor / Implicit | No |
+| `midikobold::IPatchDataProvider` | No Code Constructor / Implicit | No |
+| `midikobold::MorphController` | Singleton (getInstance found, no public injection) | ✅ Yes |
+| `midikobold::MorphPatchSelectView` | No Code Constructor / Implicit | No |
+| `midikobold::MorphSettingsView` | No Code Constructor / Implicit | No |
+
+**Summary:** Found **54** suspicious classes out of **159** logic classes checked.

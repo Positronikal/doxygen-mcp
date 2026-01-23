@@ -75,6 +75,7 @@ uv.lock
 Thumbs.db
 
 # Example project outputs
+docs/
 examples/*/docs/
 examples/*/html/
 examples/*/latex/

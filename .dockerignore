@@ -1,0 +1,36 @@
+# Ignore virtual environments
+.venv/
+venv/
+env/
+
+# Ignore Python cache and build artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.coverage
+htmlcov/
+build/
+dist/
+*.egg-info/
+
+# Ignore documentation artifacts
+docs/html/
+docs/latex/
+docs/xml/
+
+# Ignore local configuration and secrets
+.env
+.claude/
+.vscode/
+.idea/
+
+# Ignore git metadata
+.git/
+.gitignore
+.gitattributes
+
+# Ignore OS-specific files
+.DS_Store
+Thumbs.db

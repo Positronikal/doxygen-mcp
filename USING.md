@@ -275,6 +275,35 @@ result = await client.call_tool("create_doxygen_project", {
 })
 ```
 
+## Environment Configuration
+
+The server supports several environment variables to streamline your workflow and avoid repeating paths in every prompt. You can set these in your MCP client's configuration (e.g., `claude_desktop_config.json`).
+
+### Key Variables
+
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `DOXYGEN_PROJECT_ROOT` | Default path to your project source code. When set, tools like `create_doxygen_project` and `generate_documentation` will use this path by default if no `project_path` argument is provided. | `/home/user/projects/my-app` |
+| `DOXYGEN_XML_DIR` | Explicit path to the directory containing Doxygen XML output (`index.xml`). Use this if your XML files are stored in a non-standard location or if you want to query documentation without specifying the project root. | `/home/user/projects/my-app/docs/xml` |
+| `DOXYGEN_PATH` | Path to the Doxygen executable. Useful if `doxygen` is not in your system PATH. | `/usr/local/bin/doxygen` |
+
+### Configuration Example
+
+```json
+{
+  "mcpServers": {
+    "doxygen-mcp": {
+      "command": "uv",
+      "args": ["run", "doxygen-mcp"],
+      "env": {
+        "DOXYGEN_PROJECT_ROOT": "C:\\Users\\Me\\Projects\\MyGame",
+        "DOXYGEN_PATH": "C:\\Program Files\\doxygen\\bin\\doxygen.exe"
+      }
+    }
+  }
+}
+```
+
 ## Development
 
 ### Running Tests
